@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import UserManageTable from '../../Components/Tables/UserManageTable.jsx';
-import PageHeading from '../../Components/Shared/PageHeading.jsx';
+import UserManageTable from '../../../Components/Tables/UserManageTable.jsx';
+import PageHeading from '../../../Components/Shared/PageHeading.jsx';
 import { Button, Form, Input, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 const data = [
@@ -117,6 +117,7 @@ const UserManage = () => {
       </div>
       <UserManageTable data={data} pagination={false} />
       <Modal
+        centered
         title="Add New User"
         open={showModal}
         onCancel={() => setShowModal(false)}
@@ -128,6 +129,13 @@ const UserManage = () => {
           form={form}
           onFinish={handleSubmit}
         >
+          <Form.Item
+            rules={[{ required: true, message: 'Name is required' }]}
+            label="Name"
+            name="name"
+          >
+            <Input type="name" placeholder="Name" />
+          </Form.Item>
           <Form.Item
             rules={[{ required: true, message: 'Email is required' }]}
             label="Email"

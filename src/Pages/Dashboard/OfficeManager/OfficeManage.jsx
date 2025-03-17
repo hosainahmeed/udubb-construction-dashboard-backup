@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import PageHeading from '../../Components/Shared/PageHeading.jsx';
+import PageHeading from '../../../Components/Shared/PageHeading.jsx';
 import { Button, Form, Input, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
-import ManagerTable from '../../Components/Tables/ManagerTable.jsx';
-
+import OfficeManageTable from '../../../Components/Tables/OfficeManageTable.jsx';
 const data = [
   {
     user: {
@@ -96,7 +95,7 @@ const data = [
     },
   },
 ];
-const FinanceManagement = () => {
+const OfficeManage = () => {
   const [showModal, setShowModal] = useState(false);
   const [form] = Form.useForm();
   const handleSubmit = () => {
@@ -108,17 +107,19 @@ const FinanceManagement = () => {
   return (
     <div className="bg-[var(--black-200)] p-2 rounded mt-4 text-[var(--white-600)]">
       <div className="between-center">
-        <PageHeading text={'Manager Management'}></PageHeading>
+        <PageHeading text={'Office Management'}></PageHeading>
         <Button
           onClick={() => setShowModal(true)}
           className="!bg-[#213555] !text-white !px-6 !py-5"
         >
-          <FaPlus /> Add New Finance Manager
+          <FaPlus />
+          Add New Office Manager
         </Button>
       </div>
-      <ManagerTable data={data} pagination={false} />
+      <OfficeManageTable data={data} pagination={false} />
       <Modal
-        title="Add New Finance Manager"
+        centered
+        title="Add new Office Manager"
         open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
@@ -129,6 +130,13 @@ const FinanceManagement = () => {
           form={form}
           onFinish={handleSubmit}
         >
+          <Form.Item
+            rules={[{ required: true, message: 'Name is required' }]}
+            label="Name"
+            name="name"
+          >
+            <Input type="name" placeholder="Name" />
+          </Form.Item>
           <Form.Item
             rules={[{ required: true, message: 'Email is required' }]}
             label="Email"
@@ -157,4 +165,4 @@ const FinanceManagement = () => {
   );
 };
 
-export default FinanceManagement;
+export default OfficeManage;

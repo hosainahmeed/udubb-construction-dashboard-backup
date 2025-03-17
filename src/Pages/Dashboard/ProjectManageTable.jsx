@@ -5,12 +5,13 @@ import { Space, Button } from 'antd';
 import { IoEyeSharp } from 'react-icons/io5';
 import { MdBlock, MdOutlineArrowOutward } from 'react-icons/md';
 import { Link } from 'react-router';
-const OfficeManageTable = ({ data, pagination }) => {
+const ProjectManageTable = ({ data, pagination }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  console.log(data);
   const paymentDataInformation =
     data.map((payment, index) => ({
-      key: payment._id,
+      key: payment.user._id,
       sl_No: index + 1,
       user: {
         name: payment?.user?.name || 'N/A',
@@ -130,4 +131,4 @@ const OfficeManageTable = ({ data, pagination }) => {
   );
 };
 
-export default OfficeManageTable;
+export default ProjectManageTable;

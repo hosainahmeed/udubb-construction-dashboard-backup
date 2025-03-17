@@ -5,15 +5,17 @@ import ForgetPassword from '../Pages/Auth/ForgetPassword';
 import Otp from '../Pages/Auth/Otp';
 import ResetPassword from '../Pages/Auth/ResetPassword';
 import { createBrowserRouter } from 'react-router';
-import UserManage from '../Pages/Dashboard/UserManage';
+import UserManage from '../Pages/Dashboard/UserManage/UserManage.jsx';
 import TermsCondition from '../Pages/Dashboard/TermsCondition';
 import PrivacyPolicy from '../Pages/Dashboard/PrivacyPolicy';
 import Profile from '../Pages/Dashboard/Profile.jsx';
-import ManagerManage from '../Pages/Dashboard/ManagerManage.jsx';
-import FinanceManagement from '../Pages/Dashboard/FinanceManagement.jsx';
-import OfficeManage from '../Pages/Dashboard/OfficeManage.jsx';
+import ManagerManage from '../Pages/Dashboard/ManagerManage/ManagerManage.jsx';
+import FinanceManagement from '../Pages/Dashboard/FinanceManger/FinanceManagement.jsx';
+import OfficeManage from '../Pages/Dashboard/OfficeManager/OfficeManage.jsx';
 import ProjectManagement from '../Pages/Dashboard/ProjectManagement.jsx';
 import ProjectForm from '../Pages/Dashboard/ProjectForm.jsx';
+import ProjectDetails from '../Pages/Dashboard/ProjectDetails.jsx';
+import ProjectPhotos from '../Components/Project_Details_photo/ProjectPhotos.jsx';
 export const Routes = createBrowserRouter([
   {
     path: '/',
@@ -39,6 +41,14 @@ export const Routes = createBrowserRouter([
       {
         path: '/project-manage',
         element: <ProjectManagement />,
+      },
+      {
+        path: '/project-manage/:id',
+        element: <ProjectDetails />,
+      },
+      {
+        path: '/project-all_photos',
+        element: <ProjectPhotos />,
       },
       {
         path: '/add-new-project',

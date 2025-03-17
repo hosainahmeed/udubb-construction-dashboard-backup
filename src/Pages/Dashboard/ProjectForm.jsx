@@ -225,6 +225,7 @@ const ProjectForm = () => {
               }
             >
               <Input
+                type="email"
                 placeholder="enter project owner email here..."
                 className="rounded-md py-2"
               />

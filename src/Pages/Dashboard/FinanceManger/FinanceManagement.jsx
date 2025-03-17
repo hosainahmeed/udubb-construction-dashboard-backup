@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import UserManageTable from '../../Components/Tables/UserManageTable.jsx';
-import PageHeading from '../../Components/Shared/PageHeading.jsx';
-import { Button, Form, Input, message, Modal } from 'antd';
+import PageHeading from '../../../Components/Shared/PageHeading.jsx';
+import { Button, Form, Input, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
-import ManagerTable from '../../Components/Tables/ManagerTable.jsx';
+import ManagerTable from '../../../Components/Tables/ManagerTable.jsx';
+
 const data = [
   {
     user: {
@@ -96,7 +96,7 @@ const data = [
     },
   },
 ];
-const ManagerManage = () => {
+const FinanceManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [form] = Form.useForm();
   const handleSubmit = () => {
@@ -108,17 +108,18 @@ const ManagerManage = () => {
   return (
     <div className="bg-[var(--black-200)] p-2 rounded mt-4 text-[var(--white-600)]">
       <div className="between-center">
-        <PageHeading text={'Manager Management'}></PageHeading>
+        <PageHeading text={'Finance Management'}></PageHeading>
         <Button
           onClick={() => setShowModal(true)}
           className="!bg-[#213555] !text-white !px-6 !py-5"
         >
-          <FaPlus /> Add New Manager
+          <FaPlus /> Add New Finance Manager
         </Button>
       </div>
       <ManagerTable data={data} pagination={false} />
       <Modal
-        title="Add New Manager"
+        centered
+        title="Add New Finance Manager"
         open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
@@ -129,6 +130,13 @@ const ManagerManage = () => {
           form={form}
           onFinish={handleSubmit}
         >
+          <Form.Item
+            rules={[{ required: true, message: 'Name is required' }]}
+            label="Name"
+            name="name"
+          >
+            <Input type="name" placeholder="Name" />
+          </Form.Item>
           <Form.Item
             rules={[{ required: true, message: 'Email is required' }]}
             label="Email"
@@ -157,4 +165,4 @@ const ManagerManage = () => {
   );
 };
 
-export default ManagerManage;
+export default FinanceManagement;

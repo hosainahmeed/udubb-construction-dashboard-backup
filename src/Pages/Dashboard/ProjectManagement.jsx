@@ -4,9 +4,11 @@ import { Button, Form, Input, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import OfficeManageTable from '../../Components/Tables/OfficeManageTable.jsx';
 import { Link } from 'react-router';
+import ProjectManageTable from './ProjectManageTable.jsx';
 const data = [
   {
     user: {
+      _id: 'asdkjalksdj234234324m23432423423',
       name: 'Giring Furqan',
       email: 'giring@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -16,6 +18,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksdj234234324m234324 ',
       name: 'John-W-BOSTON',
       email: 'john@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -25,6 +28,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksdj2342323432423423',
       name: 'Yanto Jericho',
       email: 'yanto@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -34,6 +38,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksdj234234324m23423',
       name: 'Lukman Farhan',
       email: 'lukman@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -43,6 +48,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksdj234234324m23432423423',
       name: 'Dimas Kamal',
       email: 'dimas@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -52,6 +58,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalk234234324m23432423423',
       name: 'Hari Danang',
       email: 'hari@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -61,6 +68,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksdj23423324m22423423',
       name: 'Alan Marcus',
       email: 'alan@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -70,6 +78,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksdj234234324m23432423',
       name: 'Giring Furqan',
       email: 'giring@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -79,6 +88,7 @@ const data = [
   },
   {
     user: {
+      _id: 'ajalksdj23424324m2343243423',
       name: 'Lukman Farhan',
       email: 'lukman@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -88,6 +98,7 @@ const data = [
   },
   {
     user: {
+      _id: 'asdkjalksd3423434m43242323',
       name: 'Yanto Jericho',
       email: 'yanto@gmail.com',
       profile_image: 'https://via.placeholder.com/150',
@@ -108,7 +119,7 @@ const ProjectManagement = () => {
           </Button>
         </Link>
       </div>
-      <OfficeManageTable data={data} pagination={false} />
+      <ProjectManageTable data={data} pagination={false} />
     </div>
   );
 };

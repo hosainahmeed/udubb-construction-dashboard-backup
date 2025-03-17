@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import PageHeading from '../../Components/Shared/PageHeading.jsx';
-import { Button, Form, Input, Modal } from 'antd';
+import UserManageTable from '../../../Components/Tables/UserManageTable.jsx';
+import PageHeading from '../../../Components/Shared/PageHeading.jsx';
+import { Button, Form, Input, message, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
-import OfficeManageTable from '../../Components/Tables/OfficeManageTable.jsx';
+import ManagerTable from '../../../Components/Tables/ManagerTable.jsx';
 const data = [
   {
     user: {
@@ -95,7 +96,7 @@ const data = [
     },
   },
 ];
-const OfficeManage = () => {
+const ManagerManage = () => {
   const [showModal, setShowModal] = useState(false);
   const [form] = Form.useForm();
   const handleSubmit = () => {
@@ -107,17 +108,18 @@ const OfficeManage = () => {
   return (
     <div className="bg-[var(--black-200)] p-2 rounded mt-4 text-[var(--white-600)]">
       <div className="between-center">
-        <PageHeading text={'Finance Management'}></PageHeading>
+        <PageHeading text={'Manager Management'}></PageHeading>
         <Button
           onClick={() => setShowModal(true)}
           className="!bg-[#213555] !text-white !px-6 !py-5"
         >
-          <FaPlus /> Office Manager Management
+          <FaPlus /> Add New Manager
         </Button>
       </div>
-      <OfficeManageTable data={data} pagination={false} />
+      <ManagerTable data={data} pagination={false} />
       <Modal
-        title="Office Manager Management"
+        title="Add New Manager"
+        centered
         open={showModal}
         onCancel={() => setShowModal(false)}
         footer={null}
@@ -128,6 +130,13 @@ const OfficeManage = () => {
           form={form}
           onFinish={handleSubmit}
         >
+          <Form.Item
+            rules={[{ required: true, message: 'Name is required' }]}
+            label="Name"
+            name="name"
+          >
+            <Input type="name" placeholder="Name" />
+          </Form.Item>
           <Form.Item
             rules={[{ required: true, message: 'Email is required' }]}
             label="Email"
@@ -156,4 +165,4 @@ const OfficeManage = () => {
   );
 };
 
-export default OfficeManage;
+export default ManagerManage;
