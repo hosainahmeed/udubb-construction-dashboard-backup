@@ -1,5 +1,5 @@
-import { Button, Form } from "antd";
-import React from "react";
+import { Button, Form } from 'antd';
+import React from 'react';
 // import { userProfileFieldType } from "../../Types/DataTypes";
 // import { useUpdateProfileDataMutation } from "../../Redux/api/profileApis";
 
@@ -43,31 +43,22 @@ const ProfileEdit = ({ image, data }) => {
         onFinish={onFinish}
         layout="vertical"
         initialValues={{
-          name: data?.name || "",
-          email: data?.email || "",
-          phoneNumber: data?.phoneNumber || "",
-          address: data?.address || "",
+          name: data?.name || '',
+          email: data?.email || '',
+          phoneNumber: data?.phoneNumber || '',
+          address: data?.address || '',
         }}
       >
-        <Form.Item
-          name="name"
-          label={<span className="text-black">Name</span>}
-          rules={[
-            {
-              required: true,
-              message: "Name is required",
-            },
-          ]}
-        >
+        <Form.Item name="name" label={<span className="text-black">Name</span>}>
           <input
             style={{
-              width: "100%",
+              width: '100%',
               height: 40,
-              border: "none",
-              borderRadius: "5px",
-              color: "#111",
-              backgroundColor: "#fff",
-              outline: "none",
+              border: 'none',
+              borderRadius: '5px',
+              color: '#111',
+              backgroundColor: '#fff',
+              outline: 'none',
             }}
             placeholder="Name"
             className=" p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
@@ -80,13 +71,13 @@ const ProfileEdit = ({ image, data }) => {
         >
           <input
             style={{
-              width: "100%",
+              width: '100%',
               height: 40,
-              border: "none",
-              borderRadius: "5px",
-              color: "#111",
-              backgroundColor: "#fff",
-              outline: "none",
+              border: 'none',
+              borderRadius: '5px',
+              color: '#111',
+              backgroundColor: '#fff',
+              outline: 'none',
             }}
             disabled
             type="email"
@@ -98,22 +89,16 @@ const ProfileEdit = ({ image, data }) => {
         <Form.Item
           name="phoneNumber"
           label={<span className="text-black">Phone Number</span>}
-          rules={[
-            {
-              required: true,
-              message: "Phone number is required",
-            },
-          ]}
         >
           <input
             style={{
-              width: "100%",
+              width: '100%',
               height: 40,
-              border: "none",
-              borderRadius: "5px",
-              color: "#111",
-              backgroundColor: "#fff",
-              outline: "none",
+              border: 'none',
+              borderRadius: '5px',
+              color: '#111',
+              backgroundColor: '#fff',
+              outline: 'none',
             }}
             placeholder="Phone Number"
             className=" p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
@@ -123,22 +108,16 @@ const ProfileEdit = ({ image, data }) => {
         <Form.Item
           name="address"
           label={<span className="text-black">Address</span>}
-          rules={[
-            {
-              required: true,
-              message: "Address is required",
-            },
-          ]}
         >
           <input
             style={{
-              width: "100%",
+              width: '100%',
               height: 40,
-              border: "none",
-              borderRadius: "5px",
-              color: "#111",
-              backgroundColor: "#fff",
-              outline: "none",
+              border: 'none',
+              borderRadius: '5px',
+              color: '#111',
+              backgroundColor: '#fff',
+              outline: 'none',
             }}
             placeholder="Address"
             className=" p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button, Form, Input, Spin } from "antd";
+import React, { useState } from 'react';
+import { Button, Form, Input, Spin } from 'antd';
 // import { usePatchNewPasswordMutation } from "../../Redux/api/authApis";
 
 const ChangePassword = () => {
@@ -21,7 +21,7 @@ const ChangePassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
   const onFinish = async (values) => {
-    console.log("Success:", values);
+    console.log('Success:', values);
     // const ChangePasswordDatas = {
     //   oldPassword: values.oldPassword,
     //   newPassword: values.newPassword,
@@ -43,25 +43,25 @@ const ChangePassword = () => {
       layout="vertical"
     >
       <Form.Item
-        type={showOldPassword ? "text" : "password"}
+        type={showOldPassword ? 'text' : 'password'}
         name="oldPassword"
         label={<span className="text-black">Old Password</span>}
         rules={[
           {
             required: true,
-            message: "name is required",
+            message: 'name is required',
           },
         ]}
       >
         <Input.Password
           style={{
-            width: "100%",
+            width: '100%',
             height: 40,
-            border: "none",
-            borderRadius: "5px",
-            color: "#111",
-            backgroundColor: "#fff",
-            outline: "none",
+            border: 'none',
+            borderRadius: '5px',
+            color: '#111',
+            backgroundColor: '#fff',
+            outline: 'none',
           }}
           className=" p-2 w-full outline-none"
         />
@@ -70,22 +70,16 @@ const ChangePassword = () => {
       <Form.Item
         name="newPassword"
         label={<span className="text-black">New Password</span>}
-        rules={[
-          {
-            required: true,
-            message: "name is required",
-          },
-        ]}
       >
         <Input.Password
           style={{
-            width: "100%",
+            width: '100%',
             height: 40,
-            border: "none",
-            borderRadius: "5px",
-            color: "#111",
-            backgroundColor: "#fff",
-            outline: "none",
+            border: 'none',
+            borderRadius: '5px',
+            color: '#111',
+            backgroundColor: '#fff',
+            outline: 'none',
           }}
           className=" p-2 w-full outline-none"
         />
@@ -94,22 +88,16 @@ const ChangePassword = () => {
       <Form.Item
         name="confirmPassword"
         label={<span className="text-black">Confirm Password</span>}
-        rules={[
-          {
-            required: true,
-            message: "phone number is required",
-          },
-        ]}
       >
         <Input.Password
           style={{
-            width: "100%",
+            width: '100%',
             height: 40,
-            border: "none",
-            borderRadius: "5px",
-            color: "#111",
-            backgroundColor: "#fff",
-            outline: "none",
+            border: 'none',
+            borderRadius: '5px',
+            color: '#111',
+            backgroundColor: '#fff',
+            outline: 'none',
           }}
           className=" p-2 w-full outline-none"
         />
