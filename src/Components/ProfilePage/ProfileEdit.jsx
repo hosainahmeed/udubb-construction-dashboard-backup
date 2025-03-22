@@ -10,7 +10,6 @@ const ProfileEdit = ({ image, data }) => {
   const onFinish = async (values) => {
     const updateData = {
       name: values.name,
-      email: values.email,
       address: values.address,
       phoneNumber: values.phoneNumber,
       image,

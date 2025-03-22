@@ -36,7 +36,7 @@ function Header() {
   );
 
   return (
-    <div className="px-10 border-b-[1px] border-[#6d6d6d] h-16 flex justify-between items-center">
+    <div className="px-10 h-16 flex justify-between items-center">
       <img className="h-12" src={logo} alt="DealScout" />
       <div className="flex items-center  gap-4 text-2xl">
         <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
