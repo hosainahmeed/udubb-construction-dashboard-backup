@@ -4,29 +4,38 @@ import { EyeTwoTone } from '@ant-design/icons';
 import 'antd/dist/reset.css';
 import { Link } from 'react-router';
 import { useNavigate } from 'react-router';
-// import Logo from '../../Components/Shared/Logo';
+import { useLoginPostMutation } from '../../Redux/services/authApis';
+import toast from 'react-hot-toast';
 
 const { Title, Text } = Typography;
 const Login = () => {
   const route = useNavigate();
-  const onFinish = (values) => {
-    console.log('Success:', values);
-    route('/');
+  const [handleLogin, { isLoading }] = useLoginPostMutation();
+  const onFinish = async (values) => {
+    try {
+      const data = {
+        email: values.email,
+        password: values.password,
+      };
+      const res = await handleLogin({ data });
+      console.log(res.data);
+      if (res?.data?.success) {
+        localStorage.removeItem('accessToken');
+        localStorage.setItem('accessToken', res?.data?.data?.accessToken);
+        toast.success(res?.data?.message);
+        route('/');
+      }
+    } catch (error) {}
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#213555] p-4">
       <div className="bg-white shadow-lg relative rounded-2xl p-6 w-full max-w-lg text-center">
-        <Title level={3} className="text-blue-500">
-          {/* <Logo /> */}
-        </Title>
+        <Title level={3} className="text-blue-500"></Title>
         <div className="flex mb-6 flex-col items-start">
           <Title level={3} className="mb-1">
             Welcome back,
           </Title>
-          {/* <Text type="secondary" className="text-[var(--body-text)]">
-            Continue to
-          </Text> */}
         </div>
 
         <Form requiredMark={false} layout="vertical" onFinish={onFinish}>
@@ -96,7 +105,7 @@ const Login = () => {
             className="w-full !bg-[#213555]"
             style={{ marginTop: 10 }}
           >
-            Continue with Email
+            {isLoading ? 'Loading...' : 'Continue with Email'}
           </Button>
         </Form>
       </div>

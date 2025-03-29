@@ -6,26 +6,30 @@ import ChangePassword from '../../Components/ProfilePage/ChangePassword.jsx';
 
 import { imageUrl } from '../../Utils/server';
 import { Button } from 'antd';
+import { useGetProfileDataQuery } from '../../Redux/services/profileApis.js';
 
 const Tabs = ['Edit Profile', 'Change Password'];
 
 const Profile = () => {
   const [tab, setTab] = useState(Tabs[0]);
-
   const [image, setImage] = useState(null);
-
+  const { data: profileData, isLoading } = useGetProfileDataQuery();
+  if (isLoading) {
+    return;
+  }
   const handleImageUpload = (e) => {
     if (e.target.files?.[0]) {
       setImage(e.target.files[0]);
     }
   };
+  console.log(profileData?.data?.name);
 
   const data = {
     data: {
       authId: {
-        name: 'John Doe',
+        name: profileData?.data?.name,
       },
-      profile_image: 'https://placehold.co/400',
+      profile_image: profileData?.data?.profile_image,
     },
   };
 
@@ -97,7 +101,7 @@ const Profile = () => {
           <ProfileEdit
             image={image}
             defaultImage={profileImage}
-            data={data?.data}
+            data={profileData?.data}
           />
         ) : (
           <ChangePassword />

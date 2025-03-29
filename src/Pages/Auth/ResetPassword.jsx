@@ -3,6 +3,8 @@ import { Form, Button, Typography, Input } from 'antd';
 import 'antd/dist/reset.css';
 import { EyeTwoTone } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
+import { useResetPasswordMutation } from '../../Redux/services/authApis';
+import toast from 'react-hot-toast';
 // import Logo from '../../Components/Shared/Logo';
 
 const { Title } = Typography;
@@ -10,13 +12,33 @@ const { Title } = Typography;
 const ResetPassword = () => {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
+  const [resetPassword] = useResetPasswordMutation();
+
   const route = useNavigate();
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     if (values.password !== values.confirmPassword) {
       return Promise.reject(new Error('Passwords do not match!'));
     }
-    console.log('Success:', values);
-    route('/login');
+    const email = localStorage.getItem('forgetEmail');
+    if (!email) {
+      return Promise.reject(new Error('Email not found!'));
+    }
+    const data = {
+      email: email,
+      password: values.password,
+      confirmPassword: values.confirmPassword,
+    };
+    try {
+      const res = await resetPassword({ data });
+      if (res?.data?.success) {
+        toast.success(res?.data?.message || 'Password reset successfully.');
+        route('/login');
+      } else {
+        toast.error(res?.error?.data?.message || 'Failed to reset password.');
+      }
+    } catch (error) {
+      console.error('Failed to reset password:', error);
+    }
   };
 
   const handlePasswordChange = (e) => setPassword(e.target.value);
@@ -25,9 +47,6 @@ const ResetPassword = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#213555] p-4">
       <div className="bg-white shadow-lg relative rounded-2xl p-6 w-full max-w-lg text-start">
-        <Title level={3} className="text-blue-500">
-          {/* <Logo /> */}
-        </Title>
         <div className="flex mb-6 flex-col items-start">
           <Title level={3} className="mb-1">
             Create new password

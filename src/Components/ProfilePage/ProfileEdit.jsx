@@ -1,35 +1,49 @@
-import { Button, Form } from 'antd';
-import React from 'react';
-// import { userProfileFieldType } from "../../Types/DataTypes";
-// import { useUpdateProfileDataMutation } from "../../Redux/api/profileApis";
+import { Button, Form, Input } from 'antd';
+import React, { useEffect } from 'react';
+import { useUpdateProfileDataMutation } from '../../Redux/services/profileApis';
+import { toast } from 'react-hot-toast';
 
 const ProfileEdit = ({ image, data }) => {
   const [form] = Form.useForm();
-  //   const [setProfileUpdate, { isLoading: isProfileUpdate }] =
-  //     useUpdateProfileDataMutation();
+  const [setProfileUpdate, { isLoading: isProfileUpdate }] =
+    useUpdateProfileDataMutation();
+
+  const initialData = {
+    name: data?.name || '',
+    email: data?.email || '',
+  };
+
+  useEffect(() => {
+    if (data) {
+      form.setFieldsValue(initialData);
+    }
+  }, [data, form]);
+
   const onFinish = async (values) => {
     const updateData = {
       name: values.name,
-      address: values.address,
-      phoneNumber: values.phoneNumber,
+      email: values.email,
       image,
     };
-    console.log(updateData);
 
-    // const formData = new FormData();
-    // Object.keys(updateData)?.map((key) => {
-    //   formData.append(key, updateData);
-    // });
+    const formData = new FormData();
+    Object.keys(updateData).forEach((key) => {
+      formData.append(key, updateData[key]);
+    });
 
-    // if (image) {
-    //   formData.append("profile_image", image);
-    // }
-    // try {
-    //   await setProfileUpdate(formData);
-    //   message.success("Profile updated successfully!");
-    // } catch (error) {
-    //   console.error("Failed to update profile:", error);
-    // }
+    if (image) {
+      formData.append('profile_image', image);
+    }
+
+    try {
+      const res = await setProfileUpdate(formData);
+      if (res?.data?.success) {
+        toast.success(res?.data?.message || 'Profile updated successfully!');
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      toast.error(error?.data?.message || 'Failed to update profile');
+    }
   };
 
   return (
@@ -41,26 +55,12 @@ const ProfileEdit = ({ image, data }) => {
         form={form}
         onFinish={onFinish}
         layout="vertical"
-        initialValues={{
-          name: data?.name || '',
-          email: data?.email || '',
-          phoneNumber: data?.phoneNumber || '',
-          address: data?.address || '',
-        }}
+        initialValues={initialData}
       >
         <Form.Item name="name" label={<span className="text-black">Name</span>}>
-          <input
-            style={{
-              width: '100%',
-              height: 40,
-              border: 'none',
-              borderRadius: '5px',
-              color: '#111',
-              backgroundColor: '#fff',
-              outline: 'none',
-            }}
+          <Input
             placeholder="Name"
-            className=" p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
+            className="p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
           />
         </Form.Item>
 
@@ -68,69 +68,21 @@ const ProfileEdit = ({ image, data }) => {
           name="email"
           label={<span className="text-black">Email</span>}
         >
-          <input
-            style={{
-              width: '100%',
-              height: 40,
-              border: 'none',
-              borderRadius: '5px',
-              color: '#111',
-              backgroundColor: '#fff',
-              outline: 'none',
-            }}
+          <Input
             disabled
             type="email"
             placeholder="Email"
-            className="cursor-not-allowed  p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="phoneNumber"
-          label={<span className="text-black">Phone Number</span>}
-        >
-          <input
-            style={{
-              width: '100%',
-              height: 40,
-              border: 'none',
-              borderRadius: '5px',
-              color: '#111',
-              backgroundColor: '#fff',
-              outline: 'none',
-            }}
-            placeholder="Phone Number"
-            className=" p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="address"
-          label={<span className="text-black">Address</span>}
-        >
-          <input
-            style={{
-              width: '100%',
-              height: 40,
-              border: 'none',
-              borderRadius: '5px',
-              color: '#111',
-              backgroundColor: '#fff',
-              outline: 'none',
-            }}
-            placeholder="Address"
-            className=" p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
+            className="cursor-not-allowed p-2 w-full outline-none focus:bg-[var(--black-700)] hover:bg-[var(--black-700)] active:bg-[var(--black-700)] border-none h-11 text-[var(--white-600)]"
           />
         </Form.Item>
 
         <Button
           type="primary"
           htmlType="submit"
-          // disabled={isProfileUpdate}
+          loading={isProfileUpdate}
           className="!bg-[#213555] !hover:bg-[#213555] active:bg-[#213555] w-full"
         >
-          {/* {isProfileUpdate ? <Spin /> : "Update Profile"} */}
-          Update Profile
+          {isProfileUpdate ? 'Updating...' : 'Update Profile'}
         </Button>
       </Form>
     </div>

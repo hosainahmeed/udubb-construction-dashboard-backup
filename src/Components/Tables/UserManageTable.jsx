@@ -1,44 +1,81 @@
-import React, { useState } from "react";
-import { Popconfirm, Table, Modal } from "antd";
-import UserImage from "../../Utils/Sideber/UserImage";
-import { Space, Button } from "antd";
-import { IoEyeSharp } from "react-icons/io5";
-import { MdBlock } from "react-icons/md";
-const UserManageTable = ({ data, pagination }) => {
+import React, { useState } from 'react';
+import { Popconfirm, Table, Modal } from 'antd';
+import UserImage from '../../Utils/Sideber/UserImage';
+import { Space, Button } from 'antd';
+import { IoEyeSharp } from 'react-icons/io5';
+import { MdBlock } from 'react-icons/md';
+import {
+  useDeleteUserMutation,
+  useGetAllUserQuery,
+} from '../../Redux/services/pagesApisServices/userApis';
+import toast from 'react-hot-toast';
+
+const UserManageTable = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading } = useGetAllUserQuery({
+    page: currentPage,
+  });
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const paymentDataInformation =
-    data.map((payment, index) => ({
-      key: payment._id,
+
+  const userDataInformation =
+    data?.data?.result?.map((user, index) => ({
+      key: user._id,
       sl_No: index + 1,
       user: {
-        name: payment?.user?.name || "N/A",
-        email: payment?.user?.email || "N/A",
+        name: user?.name || 'N/A',
+        email: user?.email || 'N/A',
         profile_image:
-          "https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg" ||
-          payment?.user?.profile_image,
-        phoneNumber: payment?.user?.phoneNumber || "N/A",
-        location: payment?.user?.location || "N/A",
+          user?.profile_image ||
+          'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg',
+        phoneNumber: user?.phone || 'N/A',
+        location: user?.address || 'N/A',
+        role: user?.role || 'N/A',
+        isBlock: user?.isBlock ? 'Blocked' : 'Active',
+        isResetVerified: user?.isResetVerified ? 'Verified' : 'Not Verified',
+        isDeleted: user?.isDeleted ? 'Deleted' : 'Active',
+        createdAt: user?.createdAt || 'N/A',
+        updatedAt: user?.updatedAt || 'N/A',
       },
     })) || [];
+
   const showUserModal = (record) => {
     setSelectedUser(record.user);
     setIsModalVisible(true);
   };
+
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+
+  const handleDelete = async (key) => {
+    const id = key;
+    try {
+      const res = await deleteUser({ id });
+      if (res?.data?.success) {
+        toast.success(res?.data?.message || 'User deleted successfully.');
+      } else {
+        toast.error(res?.error?.data?.message || 'Failed to delete user.');
+      }
+      console.log(res);
+    } catch (error) {
+      toast.error('Failed to delete user.');
+      console.log(error);
+    }
+  };
+
   const columns = [
     {
-      title: "Sl no.",
-      dataIndex: "sl_No",
-      key: "sl_No",
+      title: 'Sl no.',
+      dataIndex: 'sl_No',
+      key: 'sl_No',
       render: (sl_No) => <p>#{sl_No}</p>,
     },
     {
-      title: "User Info",
-      dataIndex: "user",
-      key: "user",
+      title: 'User Info',
+      dataIndex: 'user',
+      key: 'user',
       render: (user) => (
         <UserImage
           image={user?.profile_image}
@@ -48,19 +85,20 @@ const UserManageTable = ({ data, pagination }) => {
       ),
     },
     {
-      title: "Email",
-      dataIndex: ["user", "email"],
-      key: "phoneNumber",
+      title: 'Email',
+      dataIndex: ['user', 'email'],
+      key: 'email',
     },
     {
-      title: "Location",
-      dataIndex: ["user", "location"],
-      key: "location",
+      title: 'Location',
+      dataIndex: ['user', 'location'],
+      key: 'location',
     },
+
     {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -73,7 +111,11 @@ const UserManageTable = ({ data, pagination }) => {
           <Popconfirm
             placement="topLeft"
             title="Confirm Deletion"
-            description="Are you sure you want to block this user?"
+            description={
+              <p className="text-red-500">
+                Are you sure you want to delete this user?
+              </p>
+            }
             onConfirm={() => handleDelete(record.key)}
             okText="Yes"
             cancelText="No"
@@ -86,15 +128,22 @@ const UserManageTable = ({ data, pagination }) => {
       ),
     },
   ];
-
   return (
     <>
       <Table
-        rowClassName={() => "table-row"}
+        rowClassName={() => 'table-row'}
         className="mt-2"
-        dataSource={paymentDataInformation}
+        dataSource={userDataInformation}
         columns={columns}
-        pagination={{ pageSize: 9 }}
+        loading={isLoading}
+        pagination={{
+          pageSize: data?.data?.meta?.limit,
+          total: data?.data?.meta?.total,
+          current: data?.data?.meta?.page,
+          onChange: (page) => {
+            setCurrentPage(page);
+          },
+        }}
       />
       <Modal
         title="User Details"
@@ -128,6 +177,24 @@ const UserManageTable = ({ data, pagination }) => {
             </p>
             <p>
               <strong>Location:</strong> {selectedUser.location}
+            </p>
+            <p>
+              <strong>Role:</strong> {selectedUser.role}
+            </p>
+            <p>
+              <strong>Block Status:</strong> {selectedUser.isBlock}
+            </p>
+            <p>
+              <strong>Reset Verified:</strong> {selectedUser.isResetVerified}
+            </p>
+            <p>
+              <strong>Deleted Status:</strong> {selectedUser.isDeleted}
+            </p>
+            <p>
+              <strong>Created At:</strong> {selectedUser.createdAt}
+            </p>
+            <p>
+              <strong>Updated At:</strong> {selectedUser.updatedAt}
             </p>
           </div>
         )}

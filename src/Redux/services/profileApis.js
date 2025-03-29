@@ -4,7 +4,7 @@ export const profileApis = baseApis.injectEndpoints({
   endpoints: (builder) => ({
     getProfileData: builder.query({
       query: () => ({
-        url: '/auth/profile',
+        url: '/user/get-my-profile',
         method: 'GET',
       }),
       providesTags: ['profile'],
@@ -12,7 +12,7 @@ export const profileApis = baseApis.injectEndpoints({
     updateProfileData: builder.mutation({
       query: (data) => {
         return {
-          url: '/auth/update-profile',
+          url: '/user/update-profile',
           method: 'PATCH',
           body: data,
           headers: {

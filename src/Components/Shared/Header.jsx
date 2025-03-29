@@ -3,16 +3,20 @@ import { Avatar, Dropdown, Menu } from 'antd';
 import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link } from 'react-router';
 import logo from '../../assets/logo.svg';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router';
 function Header() {
   const user = {
     photoURL: 'https://cdn-icons-png.flaticon.com/512/219/219988.png',
     displayName: 'Micheal Scott',
     email: 'Micheal46@gmail.com',
   };
+  const route = useNavigate();
 
   const handleSignOut = () => {
-    console.log('sign out');
-    window.location.href = '/login';
+    localStorage.removeItem('accessToken');
+    toast.success('Sign out successfully!');
+    route('/login');
   };
 
   const menu = (

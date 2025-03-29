@@ -5,8 +5,12 @@ const baseApis = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl: url,
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        headers.set('Authorization', `${token}`);
+      }
+      return headers;
     },
   }),
   tagTypes: ['profile', 'category', 'product', 'user'],

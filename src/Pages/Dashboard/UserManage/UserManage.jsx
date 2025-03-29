@@ -3,105 +3,33 @@ import UserManageTable from '../../../Components/Tables/UserManageTable.jsx';
 import PageHeading from '../../../Components/Shared/PageHeading.jsx';
 import { Button, Form, Input, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
-const data = [
-  {
-    user: {
-      name: 'Giring Furqan',
-      email: 'giring@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+99 248 525652321',
-      location: 'Indonesia',
-    },
-  },
-  {
-    user: {
-      name: 'John-W-BOSTON',
-      email: 'john@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+99 458 365652321',
-      location: 'United States',
-    },
-  },
-  {
-    user: {
-      name: 'Yanto Jericho',
-      email: 'yanto@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+92 308 32572113',
-      location: 'Pakistan',
-    },
-  },
-  {
-    user: {
-      name: 'Lukman Farhan',
-      email: 'lukman@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+98 654 89236547',
-      location: 'Iran',
-    },
-  },
-  {
-    user: {
-      name: 'Dimas Kamal',
-      email: 'dimas@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+91 987 6543210',
-      location: 'India',
-    },
-  },
-  {
-    user: {
-      name: 'Hari Danang',
-      email: 'hari@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+90 123 4567890',
-      location: 'Turkey',
-    },
-  },
-  {
-    user: {
-      name: 'Alan Marcus',
-      email: 'alan@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+93 789 6543210',
-      location: 'Afghanistan',
-    },
-  },
-  {
-    user: {
-      name: 'Giring Furqan',
-      email: 'giring@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+99 248 525652321',
-      location: 'Indonesia',
-    },
-  },
-  {
-    user: {
-      name: 'Lukman Farhan',
-      email: 'lukman@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+98 654 89236547',
-      location: 'Iran',
-    },
-  },
-  {
-    user: {
-      name: 'Yanto Jericho',
-      email: 'yanto@gmail.com',
-      profile_image: 'https://via.placeholder.com/150',
-      phoneNumber: '+92 308 32572113',
-      location: 'Pakistan',
-    },
-  },
-];
+import toast from 'react-hot-toast';
+import { useCreateUserMutation } from '../../../Redux/services/pagesApisServices/userApis.js';
 const UserManage = () => {
   const [showModal, setShowModal] = useState(false);
+  const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [form] = Form.useForm();
-  const handleSubmit = () => {
-    form.validateFields().then((values) => {
-      console.log(values);
-      setShowModal(false);
+  const handleSubmit = async () => {
+    form.validateFields().then(async (values) => {
+      const data = {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        role: 'user',
+      };
+      try {
+        const res = await createUser({ data });
+        if (res?.data?.success) {
+          form.resetFields();
+          toast.success(res?.data?.message || 'User created successfully.');
+          setShowModal(false);
+        } else {
+          toast.error(res?.error?.data?.message || 'Failed to create user.');
+        }
+        console.log(res);
+      } catch (error) {
+        console.log(error);
+      }
     });
   };
   return (
@@ -115,7 +43,7 @@ const UserManage = () => {
           <FaPlus /> Add New User
         </Button>
       </div>
-      <UserManageTable data={data} pagination={false} />
+      <UserManageTable />
       <Modal
         centered
         title="Add New User"
@@ -148,14 +76,14 @@ const UserManage = () => {
             label="Password"
             name="password"
           >
-            <Input type="password" placeholder="Password" />
+            <Input.Password placeholder="input password" />
           </Form.Item>
           <Form.Item>
             <Button
               htmlType="submit"
               className="!bg-[#213555] !text-white !px-6 !py-5"
             >
-              Submit
+              {isCreating ? 'Adding...' : 'Add'}
             </Button>
           </Form.Item>
         </Form>

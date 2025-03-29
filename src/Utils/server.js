@@ -1,4 +1,4 @@
-export const url = `http://209.97.134.184:8001`;
+export const url = `http://10.0.60.137:5000`;
 export const imageUrl = (image) => {
   return image
     ? image?.startsWith(`http`)

@@ -2,14 +2,19 @@ import React from 'react';
 import { Form, Input, Button, Typography } from 'antd';
 import 'antd/dist/reset.css';
 import { useNavigate } from 'react-router';
+import { useForgetEmailPostMutation } from '../../Redux/services/authApis';
 
 const { Title, Text } = Typography;
 
 const ForgetPassword = () => {
   const route = useNavigate();
+  const [forgetEmail, { isLoading: isForgetLoading }] =
+    useForgetEmailPostMutation();
   const onFinish = (values) => {
     console.log('Success:', values);
     localStorage.setItem('forgetEmail', values.email);
+    const data = { email: values.email };
+    forgetEmail({ data });
     route('/otp');
   };
 
@@ -56,7 +61,7 @@ const ForgetPassword = () => {
             className="w-full !bg-[#213555]"
             style={{ marginTop: 10 }}
           >
-            Continue with Email
+            {isForgetLoading ? 'Loading...' : ' Continue with Email'}
           </Button>
         </Form>
       </div>
