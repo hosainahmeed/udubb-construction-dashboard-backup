@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { Popconfirm, Table, Modal } from 'antd';
-import UserImage from '../../Utils/Sideber/UserImage';
 import { Space, Button } from 'antd';
 import { IoEyeSharp } from 'react-icons/io5';
-import { MdBlock } from 'react-icons/md';
+import { MdBlock, MdDelete } from 'react-icons/md';
 import {
   useDeleteUserMutation,
   useGetAllUserQuery,
 } from '../../Redux/services/pagesApisServices/userApis';
 import toast from 'react-hot-toast';
+import UsernameImage from '../../Utils/Sideber/UserImage';
 
 const UserManageTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { data, isLoading } = useGetAllUserQuery({
     page: currentPage,
+    role: 'user',
   });
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -77,7 +78,7 @@ const UserManageTable = () => {
       dataIndex: 'user',
       key: 'user',
       render: (user) => (
-        <UserImage
+        <UsernameImage
           image={user?.profile_image}
           name={user?.name}
           email={user?.email}
@@ -121,7 +122,7 @@ const UserManageTable = () => {
             cancelText="No"
           >
             <Button type="default" shape="circle">
-              <MdBlock />
+              <MdDelete />
             </Button>
           </Popconfirm>
         </Space>
@@ -166,36 +167,40 @@ const UserManageTable = () => {
               name={selectedUser.name}
               email={selectedUser.email}
             />
-            <p>
-              <strong>Name:</strong> {selectedUser.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedUser.email}
-            </p>
-            <p>
-              <strong>Phone Number:</strong> {selectedUser.phoneNumber}
-            </p>
-            <p>
-              <strong>Location:</strong> {selectedUser.location}
-            </p>
-            <p>
-              <strong>Role:</strong> {selectedUser.role}
-            </p>
-            <p>
-              <strong>Block Status:</strong> {selectedUser.isBlock}
-            </p>
-            <p>
-              <strong>Reset Verified:</strong> {selectedUser.isResetVerified}
-            </p>
-            <p>
-              <strong>Deleted Status:</strong> {selectedUser.isDeleted}
-            </p>
-            <p>
-              <strong>Created At:</strong> {selectedUser.createdAt}
-            </p>
-            <p>
-              <strong>Updated At:</strong> {selectedUser.updatedAt}
-            </p>
+            <div className="!mt-12">
+              <p>
+                <strong>Name:</strong> {selectedUser.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>Phone Number:</strong> {selectedUser.phoneNumber}
+              </p>
+              <p>
+                <strong>Location:</strong> {selectedUser.location}
+              </p>
+              <p>
+                <strong>Role:</strong> {selectedUser.role}
+              </p>
+              <p>
+                <strong>Block Status:</strong> {selectedUser.isBlock}
+              </p>
+              <p>
+                <strong>Reset Verified:</strong> {selectedUser.isResetVerified}
+              </p>
+              <p>
+                <strong>Deleted Status:</strong> {selectedUser.isDeleted}
+              </p>
+              <p>
+                <strong>Created At:</strong>{' '}
+                {new Date(selectedUser.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
+            </div>
           </div>
         )}
       </Modal>

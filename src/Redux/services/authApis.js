@@ -38,7 +38,7 @@ export const authApis = baseApis.injectEndpoints({
         method: 'POST',
         body: data,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('resetToken')}`,
+          Authorization: `${localStorage.getItem('resetToken')}`,
         },
       }),
     }),

@@ -13,7 +13,10 @@ const UsernameImage = ({ name, email, image }) => {
           alt={name}
         />
       )}
-      <div>{name && <p className="text-base">{name}</p>}</div>
+      <div className="flex flex-col items-start">
+        {name && <p className="text-base leading-none">{name}</p>}
+        {email && <p className="text-[#808080] leading-none text-sm">{email}</p>}
+      </div>
     </div>
   );
 };

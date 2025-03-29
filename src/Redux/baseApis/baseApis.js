@@ -13,7 +13,7 @@ const baseApis = createApi({
       return headers;
     },
   }),
-  tagTypes: ['profile', 'category', 'product', 'user'],
+  tagTypes: ['profile', 'project', 'user'],
   endpoints: () => ({}),
 });
 

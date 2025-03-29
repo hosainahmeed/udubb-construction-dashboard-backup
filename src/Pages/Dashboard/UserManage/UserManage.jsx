@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import UserManageTable from '../../../Components/Tables/UserManageTable.jsx';
 import PageHeading from '../../../Components/Shared/PageHeading.jsx';
-import { Button, Form, Input, Modal } from 'antd';
+import { Button, Form, Input, Modal, Spin } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useCreateUserMutation } from '../../../Redux/services/pagesApisServices/userApis.js';
@@ -83,7 +83,7 @@ const UserManage = () => {
               htmlType="submit"
               className="!bg-[#213555] !text-white !px-6 !py-5"
             >
-              {isCreating ? 'Adding...' : 'Add'}
+              {isCreating ? <Spin size="small" /> : 'Create'}
             </Button>
           </Form.Item>
         </Form>

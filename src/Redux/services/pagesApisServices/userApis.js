@@ -3,10 +3,10 @@ import baseApis from '../../baseApis/baseApis';
 export const userApis = baseApis.injectEndpoints({
   endpoints: (builder) => ({
     getAllUser: builder.query({
-      query: ({ page }) => ({
+      query: ({ page, role, searchTerm }) => ({
         url: '/user/get-all-user',
         method: 'GET',
-        params: { page },
+        params: { page, role, searchTerm },
       }),
       providesTags: ['user'],
     }),

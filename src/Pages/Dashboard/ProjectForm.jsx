@@ -10,10 +10,14 @@ import {
   Col,
   Card,
   Typography,
+  message,
+  Modal,
 } from 'antd';
 import { UploadOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
 import PageHeading from '../../Components/Shared/PageHeading';
+import { useCreateProjectsMutation } from '../../Redux/services/pagesApisServices/projectApis';
+import ProjectsManagerModal from './Projects/Modal/ProjectsManagerModal';
 
 const { Title, Text } = Typography;
 
@@ -21,114 +25,95 @@ const ProjectForm = () => {
   const [form] = Form.useForm();
   const [projectImage, setProjectImage] = useState(null);
   const [projectImageUrl, setProjectImageUrl] = useState('');
-  const [documentation, setDocumentation] = useState(null);
-  const [documentationName, setDocumentationName] = useState('');
-  const [projectManagerAssigned, setProjectManagerAssigned] = useState(false);
+  const [projectsManagerModal, setProjectsManagerModal] = useState(false); //setProjectManagerAssigned
+  const [projectManagerAssigned, setProjectManagerAssigned] = useState(null);
   const [officeManagerAssigned, setOfficeManagerAssigned] = useState(false);
   const [financeManagerAssigned, setFinanceManagerAssigned] = useState(false);
+  const [createProject, { isLoading }] = useCreateProjectsMutation();
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     const formData = new FormData();
 
-    Object.keys(values).forEach((key) => {
-      if (key !== 'projectImage' && key !== 'documentation') {
-        formData.append(key, values[key] || '');
-      }
-    });
-
     if (projectImage) {
-      formData.append('projectImage', projectImage);
+      formData.append('project_image', projectImage);
     }
 
-    if (documentation) {
-      formData.append('documentation', documentation);
-    }
-
-    if (values.projectStartDate) {
-      formData.append(
-        'projectStartDate',
-        values.projectStartDate.format('DD/MM/YYYY')
-      );
-    }
-
-    formData.append('projectManagerAssigned', projectManagerAssigned);
-    formData.append('officeManagerAssigned', officeManagerAssigned);
-    formData.append('financeManagerAssigned', financeManagerAssigned);
-
-    const formDataObject = {
-      Add_ProjectImage: projectImage,
-      Documentations: documentation?.file,
-      Project_Owner_Email: values.projectOwnerEmail,
-      Project_Name: values.projectName,
-      Project_Title: values.projectTitle,
-      Project_Start_Date: values.projectStartDate
-        ? values.projectStartDate.format('DD/MM/YYYY')
-        : new Date().toLocaleDateString('en-GB', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-          }),
-      Live_Stream_Link: values.liveStreamLink,
-      Select_Project_Manager_assign: projectManagerAssigned,
-      Select_Office_Manager_assign: officeManagerAssigned,
-      Select_Finance_Manager_assign: financeManagerAssigned,
+    const dataPayload = {
+      name: values.projectName,
+      projectOwnerEmail: values.projectOwnerEmail,
+      title: values.projectTitle,
+      startDate: values.projectStartDate
+        ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+        : new Date().toISOString(),
+      liveLink: values.liveStreamLink,
+      projectManager: projectManagerAssigned,
+      officeManager: officeManagerAssigned,
+      financeManager: financeManagerAssigned,
     };
 
-    console.log(formDataObject);
-  };
+    Object.entries(dataPayload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
 
-  const handleProjectImageChange = (info) => {
-    console.log(info.file);
-    if (info.file) {
-      setProjectImage(info.file);
-
-      const url = URL.createObjectURL(info.file);
-      setProjectImageUrl(url);
+    try {
+      const response = await createProject(formData).unwrap();
+      if (response) {
+        message.success('Project created successfully!');
+        form.resetFields();
+        setProjectImage(null);
+        setProjectImageUrl('');
+      }
+    } catch (error) {
+      message.error(
+        'Failed to create project: ' + (error?.data?.message || 'Unknown error')
+      );
+      console.error(error);
     }
   };
-
-  const handleDocumentationChange = (info) => {
-    if (info) {
-      setDocumentation(info);
-      setDocumentationName(info.file.name);
+  const handleProjectImageChange = (info) => {
+    console.log(info.file);
+    const file = info.file;
+    if (file) {
+      setProjectImage(file);
+      const url = URL.createObjectURL(file);
+      setProjectImageUrl(url);
     }
   };
 
   const projectImageUploadProps = {
     beforeUpload: (file) => {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        message.error('You can only upload image files!');
+        return false;
+      }
       return false;
     },
     onChange: handleProjectImageChange,
     showUploadList: false,
   };
 
-  const documentationUploadProps = {
-    beforeUpload: (file) => {
-      return false;
-    },
-    onChange: handleDocumentationChange,
-    showUploadList: false,
-    accept: '.pdf,.doc,.docx,.txt',
-  };
-
-  const toggleProjectManager = () => {
-    setProjectManagerAssigned(!projectManagerAssigned);
-  };
-
-  const toggleOfficeManager = () => {
-    setOfficeManagerAssigned(!officeManagerAssigned);
-  };
-
-  const toggleFinanceManager = () => {
-    setFinanceManagerAssigned(!financeManagerAssigned);
-  };
-
   return (
     <div>
       <PageHeading text={'Back to table'}></PageHeading>
-      <Form form={form} layout="vertical" onFinish={onFinish} className="!mt-3 p-6">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        className="!mt-3 p-6"
+        initialValues={{
+          name: 'projectName',
+          projectOwnerEmail: 'projectsOwnerEmail',
+          title: 'projectTitle',
+          startDate: 'projectStartDate',
+          liveLink: 'liveStreamLink',
+          projectManager: projectManagerAssigned,
+          officeManager: officeManagerAssigned,
+          financeManager: financeManagerAssigned,
+        }}
+      >
         <Row gutter={24}>
-          <Col span={12}>
+          <Col span={24}>
             <Form.Item
               name="projectImage"
               label={
@@ -172,46 +157,6 @@ const ProjectForm = () => {
               </Card>
             </Form.Item>
           </Col>
-          <Col span={12}>
-            <Form.Item
-              name="documentation"
-              label={
-                <Title level={4} className="text-gray-700 mb-2">
-                  Documentations
-                </Title>
-              }
-            >
-              <Card className="h-64 !border-2 !border-dashed !border-gray-300 flex items-center justify-center">
-                {documentationName ? (
-                  <div className="text-center">
-                    <FilePdfOutlined className="text-4xl text-blue-500" />
-                    <div className="mt-2 text-gray-700 font-medium">
-                      {documentationName}
-                    </div>
-                    <Button
-                      type="link"
-                      className="mt-2"
-                      onClick={() => {
-                        setDocumentationName('');
-                        setDocumentation(null);
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ) : (
-                  <Upload {...documentationUploadProps}>
-                    <div className="text-center p-4">
-                      <FilePdfOutlined className="text-4xl text-gray-300" />
-                      <div className="mt-2 text-gray-500 font-medium">
-                        Upload Your Documentation
-                      </div>
-                    </div>
-                  </Upload>
-                )}
-              </Card>
-            </Form.Item>
-          </Col>
         </Row>
 
         <Row gutter={24}>
@@ -223,6 +168,16 @@ const ProjectForm = () => {
                   Project Owner Email
                 </Title>
               }
+              rules={[
+                {
+                  required: true,
+                  message: 'Please enter project owner email',
+                },
+                {
+                  type: 'email',
+                  message: 'Please enter a valid email',
+                },
+              ]}
             >
               <Input
                 type="email"
@@ -239,6 +194,7 @@ const ProjectForm = () => {
                   Project Name
                 </Title>
               }
+              rules={[{ required: true, message: 'Please enter project name' }]}
             >
               <Input
                 placeholder="enter project name here..."
@@ -257,6 +213,9 @@ const ProjectForm = () => {
                   Project Title
                 </Title>
               }
+              rules={[
+                { required: true, message: 'Please enter project title' },
+              ]}
             >
               <Input
                 placeholder="enter project title here..."
@@ -309,21 +268,14 @@ const ProjectForm = () => {
               <Text className="text-gray-600">Select Project Manager</Text>
             </Form.Item>
           </Col>
-          <Col span={2} className="text-center">
-            <Switch
-              checked={projectManagerAssigned}
-              onChange={toggleProjectManager}
-              className="bg-gray-300"
-            />
-          </Col>
+
           <Col span={4}>
-            {projectManagerAssigned ? (
-              <div className="bg-[#213555] text-white w-fit px-2 py-1 rounded">
-                Assigned
-              </div>
-            ) : (
-              <div className="bg-white w-fit px-2 py-1 rounded">Assigned</div>
-            )}
+            <Button
+              onClick={() => setProjectsManagerModal(true)}
+              className="!bg-[#213555] !text-white w-fit px-2 py-1 rounded"
+            >
+              Assigned
+            </Button>
           </Col>
         </Row>
 
@@ -339,21 +291,11 @@ const ProjectForm = () => {
               <Text className="text-gray-600">Select Office Manager</Text>
             </Form.Item>
           </Col>
-          <Col span={2} className="text-center">
-            <Switch
-              checked={officeManagerAssigned}
-              onChange={toggleOfficeManager}
-              className="bg-gray-300"
-            />
-          </Col>
+
           <Col span={4}>
-            {officeManagerAssigned ? (
-              <div className="bg-[#213555] text-white w-fit px-2 py-1 rounded">
-                Assigned
-              </div>
-            ) : (
-              <div className="bg-white w-fit px-2 py-1 rounded">Assigned</div>
-            )}{' '}
+            <Button className="!bg-[#213555] !text-white w-fit px-2 py-1 rounded">
+              Assigned
+            </Button>
           </Col>
         </Row>
 
@@ -369,21 +311,11 @@ const ProjectForm = () => {
               <Text className="text-gray-600">Select Finance Manager</Text>
             </Form.Item>
           </Col>
-          <Col span={2} className="text-center">
-            <Switch
-              checked={financeManagerAssigned}
-              onChange={toggleFinanceManager}
-              className="bg-gray-300"
-            />
-          </Col>
+
           <Col span={4}>
-            {financeManagerAssigned ? (
-              <div className="bg-[#213555] text-white w-fit px-2 py-1 rounded">
-                Assigned
-              </div>
-            ) : (
-              <div className="bg-white w-fit px-2 py-1 rounded">Assigned</div>
-            )}
+            <Button className="!bg-[#213555] !text-white w-fit px-2 py-1 rounded">
+              Assigned
+            </Button>
           </Col>
         </Row>
 
@@ -401,6 +333,14 @@ const ProjectForm = () => {
           </Col>
         </Row>
       </Form>
+      <Modal
+        open={projectsManagerModal}
+        onCancel={() => setProjectsManagerModal(false)}
+        footer={null}
+        width={800}
+      >
+        <ProjectsManagerModal />
+      </Modal>
     </div>
   );
 };

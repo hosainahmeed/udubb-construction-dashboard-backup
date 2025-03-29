@@ -1,25 +1,41 @@
 import React, { useState } from 'react';
-import { Popconfirm, Table, Modal } from 'antd';
+import { Popconfirm, Table, Modal, Spin } from 'antd';
 import UserImage from '../../Utils/Sideber/UserImage';
 import { Space, Button } from 'antd';
 import { IoEyeSharp } from 'react-icons/io5';
-import { MdBlock, MdOutlineArrowOutward } from 'react-icons/md';
+import { MdBlock, MdDelete, MdOutlineArrowOutward } from 'react-icons/md';
 import { Link } from 'react-router';
-const OfficeManageTable = ({ data, pagination }) => {
+import {
+  useDeleteUserMutation,
+  useGetAllUserQuery,
+} from '../../Redux/services/pagesApisServices/userApis';
+const OfficeManageTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
+  const { data, isLoading } = useGetAllUserQuery({
+    page: currentPage,
+    role: 'officeManager',
+  });
   const [selectedUser, setSelectedUser] = useState(null);
-  const paymentDataInformation =
-    data.map((payment, index) => ({
-      key: payment._id,
+  const userDataInformation =
+    data?.data?.result?.map((user, index) => ({
+      key: user._id,
       sl_No: index + 1,
       user: {
-        name: payment?.user?.name || 'N/A',
-        email: payment?.user?.email || 'N/A',
+        name: user?.name || 'N/A',
+        email: user?.email || 'N/A',
         profile_image:
-          'https://gratisography.com/wp-content/uploads/2024/11/gratisography-augmented-reality-800x525.jpg' ||
-          payment?.user?.profile_image,
-        phoneNumber: payment?.user?.phoneNumber || 'N/A',
-        location: payment?.user?.location || 'N/A',
+          user?.profile_image ||
+          'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg',
+        phoneNumber: user?.phone || 'N/A',
+        location: user?.address || 'N/A',
+        role: user?.role || 'N/A',
+        isBlock: user?.isBlock ? 'Blocked' : 'Active',
+        isResetVerified: user?.isResetVerified ? 'Verified' : 'Not Verified',
+        isDeleted: user?.isDeleted ? 'Deleted' : 'Active',
+        createdAt: user?.createdAt || 'N/A',
+        updatedAt: user?.updatedAt || 'N/A',
       },
     })) || [];
   const showUserModal = (record) => {
@@ -28,6 +44,23 @@ const OfficeManageTable = ({ data, pagination }) => {
   };
   const handleCancel = () => {
     setIsModalVisible(false);
+  };
+
+  const handleDelete = async (key) => {
+    const id = key;
+    try {
+      const res = await deleteUser({ id });
+      if (res?.data?.success) {
+        console.log(res);
+        toast.success(res?.data?.message || 'Manager deleted successfully.');
+      } else {
+        toast.error(res?.error?.data?.message || 'Failed to delete Manager.');
+      }
+      console.log(res);
+    } catch (error) {
+      toast.error('Failed to delete Manager.');
+      console.log(error);
+    }
   };
   const columns = [
     {
@@ -71,11 +104,22 @@ const OfficeManageTable = ({ data, pagination }) => {
           >
             <IoEyeSharp />
           </Button>
-          <Link to={`/project-manage/${record.key}`}>
+          <Popconfirm
+            placement="topLeft"
+            title="Confirm Deletion"
+            description={
+              <p className="text-red-500">
+                Are you sure you want to delete this user?
+              </p>
+            }
+            onConfirm={() => handleDelete(record.key)}
+            okText="Yes"
+            cancelText="No"
+          >
             <Button type="default" shape="circle">
-              <MdOutlineArrowOutward />
+              {isDeleting ? <Spin size="small" /> : <MdDelete />}
             </Button>
-          </Link>
+          </Popconfirm>
         </Space>
       ),
     },
@@ -86,9 +130,17 @@ const OfficeManageTable = ({ data, pagination }) => {
       <Table
         rowClassName={() => 'table-row'}
         className="mt-2"
-        dataSource={paymentDataInformation}
+        dataSource={userDataInformation}
         columns={columns}
-        pagination={{ pageSize: 9 }}
+        loading={isLoading}
+        pagination={{
+          pageSize: data?.data?.meta?.limit,
+          total: data?.data?.meta?.total,
+          current: data?.data?.meta?.page,
+          onChange: (page) => {
+            setCurrentPage(page);
+          },
+        }}
       />
       <Modal
         title="User Details"
@@ -111,18 +163,40 @@ const OfficeManageTable = ({ data, pagination }) => {
               name={selectedUser.name}
               email={selectedUser.email}
             />
-            <p>
-              <strong>Name:</strong> {selectedUser.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedUser.email}
-            </p>
-            <p>
-              <strong>Phone Number:</strong> {selectedUser.phoneNumber}
-            </p>
-            <p>
-              <strong>Location:</strong> {selectedUser.location}
-            </p>
+            <div className="!mt-12">
+              <p>
+                <strong>Name:</strong> {selectedUser.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>Phone Number:</strong> {selectedUser.phoneNumber}
+              </p>
+              <p>
+                <strong>Location:</strong> {selectedUser.location}
+              </p>
+              <p>
+                <strong>Role:</strong> {selectedUser.role}
+              </p>
+              <p>
+                <strong>Block Status:</strong> {selectedUser.isBlock}
+              </p>
+              <p>
+                <strong>Reset Verified:</strong> {selectedUser.isResetVerified}
+              </p>
+              <p>
+                <strong>Deleted Status:</strong> {selectedUser.isDeleted}
+              </p>
+              <p>
+                <strong>Created At:</strong>{' '}
+                {new Date(selectedUser.createdAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </p>
+            </div>
           </div>
         )}
       </Modal>

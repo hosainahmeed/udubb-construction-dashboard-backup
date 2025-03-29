@@ -3,8 +3,24 @@ import PageHeading from '../../Components/Shared/PageHeading';
 import { FaEye } from 'react-icons/fa';
 import { Select } from 'antd';
 import { Link } from 'react-router';
+import { useGetSingleProjectQuery } from '../../Redux/services/pagesApisServices/projectApis';
 
 function ProjectDetails() {
+  const { data: project, isLoading: projectsLoading } =
+    useGetSingleProjectQuery({ id: '67e7827556ca7f14231f37ca' });
+  if (projectsLoading) {
+    return (
+      <div
+        style={{
+          height: 'calc(100% - 10px)',
+        }}
+        className="flex justify-center items-center w-full"
+      >
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+  console.log(project);
   const projectDetails = [
     {
       id: 1,
@@ -85,26 +101,6 @@ function ProjectDetails() {
       <div>
         <div className="flex justify-between items-center my-3">
           <h1 className="flex-1">Project Image</h1>
-          <div className="w-[300px]">
-            <Select
-              placeholder="Select project"
-              style={{ width: '100%' }}
-              onChange={(value) => {
-                const selectedProject = projectDetails.find(
-                  (project) => project.id === Number(value)
-                );
-                if (selectedProject) {
-                  setImage(selectedProject.image);
-                }
-              }}
-            >
-              {projectDetails.map((project) => (
-                <Select.Option key={project.id} value={String(project.id)}>
-                  {project.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {projectDetails.slice(0, 3).map((project, idx) => (
@@ -121,8 +117,8 @@ function ProjectDetails() {
               </div>
               {idx === 2 && (
                 <Link
-                to={`/project-all_photos`}
-                state={{ projectDetails: projectDetails }}
+                  to={`/project-all_photos`}
+                  state={{ projectDetails: projectDetails }}
                 >
                   <div className="underline cursor-pointer absolute top-0 left-0 w-full h-full flex items-center justify-center bg-[#1111114e] hover:backdrop-blur-sm hover:transition-all text-white">
                     <h1 className="flex items-center gap-2">
