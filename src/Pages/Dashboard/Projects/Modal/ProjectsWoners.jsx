@@ -6,7 +6,10 @@ const { Search } = Input;
 
 function ProjectsWoners({ setProjectOwnerAssigned, setProjectsOwnerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, isLoading } = useGetAllUserQuery({ searchTerm: searchTerm });
+  const { data, isLoading } = useGetAllUserQuery({
+    searchTerm: searchTerm,
+    role: 'user',
+  });
 
   const onSearch = (value) => {
     setSearchTerm(value);

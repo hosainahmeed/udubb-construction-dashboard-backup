@@ -25,7 +25,14 @@ export const projectApis = baseApis.injectEndpoints({
       }),
       invalidatesTags: ['project'],
     }),
-    
+    updateProject: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/project/update-project/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: ['project'],
+    }),
   }),
 });
 
@@ -33,4 +40,5 @@ export const {
   useGetAllProjectsQuery,
   useGetSingleProjectQuery,
   useCreateProjectsMutation,
+  useUpdateProjectMutation,
 } = projectApis;

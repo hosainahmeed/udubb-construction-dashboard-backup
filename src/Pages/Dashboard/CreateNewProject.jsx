@@ -28,6 +28,7 @@ import ProjectsManagerAssignComponent from '../../Components/AssignComponent/Pro
 import OfficeManagerAssignComponent from '../../Components/AssignComponent/OfficeManagerAssignComponent';
 import FinanceManagerAssignComponent from '../../Components/AssignComponent/FinanceManagerAssignComponent';
 import { useLocation } from 'react-router';
+import toast from 'react-hot-toast';
 
 const { Title, Text } = Typography;
 
@@ -80,7 +81,9 @@ const CreateNewProject = () => {
     try {
       const response = await createProject(formData).unwrap();
       if (response) {
-        message.success('Project created successfully!');
+        toast.success(
+          response?.data?.message || 'Project created successfully.'
+        );
         form.resetFields();
         setProjectImage(null);
         setProjectImageUrl('');
@@ -91,9 +94,7 @@ const CreateNewProject = () => {
         setProjectOwnerAssigned(null);
       }
     } catch (error) {
-      message.error(
-        'Failed to create project: ' + (error?.data?.message || 'Unknown error')
-      );
+      toast.error(error?.data?.message || 'Failed to create project.');
       console.error(error);
     }
   };
@@ -110,7 +111,7 @@ const CreateNewProject = () => {
     beforeUpload: (file) => {
       const isImage = file.type.startsWith('image/');
       if (!isImage) {
-        message.error('You can only upload image files!');
+        toast.error('You can only upload image files!');
         return false;
       }
       return false;

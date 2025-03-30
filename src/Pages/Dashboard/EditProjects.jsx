@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Input,
@@ -14,10 +14,11 @@ import {
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
+import moment from 'moment'; // Import moment for date handling
 import PageHeading from '../../Components/Shared/PageHeading';
 import {
-  useCreateProjectsMutation,
   useGetSingleProjectQuery,
+  useUpdateProjectMutation,
 } from '../../Redux/services/pagesApisServices/projectApis';
 import ProjectsManagerModal from './Projects/Modal/ProjectsManagerModal';
 import OfficeManager from './Projects/Modal/OfficeManager';
@@ -28,15 +29,15 @@ import ProjectsManagerAssignComponent from '../../Components/AssignComponent/Pro
 import OfficeManagerAssignComponent from '../../Components/AssignComponent/OfficeManagerAssignComponent';
 import FinanceManagerAssignComponent from '../../Components/AssignComponent/FinanceManagerAssignComponent';
 import { useLocation } from 'react-router';
+import toast from 'react-hot-toast';
 
 const { Title } = Typography;
 
 const EditProjects = () => {
   const location = useLocation();
   const id = location?.state;
-  const { data: project } =
-    useGetSingleProjectQuery({ id: id });
-
+  const { data: projectData } = useGetSingleProjectQuery({ id: id });
+  const project = projectData?.data;
   const [form] = Form.useForm();
   const [projectImage, setProjectImage] = useState(null);
   const [projectImageUrl, setProjectImageUrl] = useState('');
@@ -46,9 +47,35 @@ const EditProjects = () => {
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
   const [projectOwnerAssigned, setProjectOwnerAssigned] = useState(null);
   const [projectManagerAssigned, setProjectManagerAssigned] = useState(null);
-  const [officeManagerAssigned, setOfficeManagerAssigned] = useState(false);
-  const [financeManagerAssigned, setFinanceManagerAssigned] = useState(false);
-  const [createProject, { isLoading }] = useCreateProjectsMutation();
+  const [officeManagerAssigned, setOfficeManagerAssigned] = useState(null);
+  const [financeManagerAssigned, setFinanceManagerAssigned] = useState(null);
+  const [updateProject, { isLoading: updateLoading }] =
+    useUpdateProjectMutation();
+  console.log(project?.projectOwner);
+  useEffect(() => {
+    if (project) {
+      form.setFieldsValue({
+        projectName: project.name || '',
+        projectOwnerEmail: project.projectOwnerEmail || '',
+        projectTitle: project.title || '',
+        projectStartDate: project.startDate ? moment(project.startDate) : null,
+        liveStreamLink: project.liveLink || '',
+      });
+
+      if (project.projectImage) {
+        setProjectImageUrl(project.projectImage);
+      }
+
+      if (project.projectManager)
+        setProjectManagerAssigned(project.projectManager._id);
+      if (project.officeManager)
+        setOfficeManagerAssigned(project.officeManager._id);
+      if (project.financeManager)
+        setFinanceManagerAssigned(project.financeManager._id);
+      if (project.projectOwner)
+        setProjectOwnerAssigned(project.projectOwner._id);
+    }
+  }, [project, form]);
 
   const onFinish = async (values) => {
     const formData = new FormData();
@@ -78,25 +105,18 @@ const EditProjects = () => {
     });
 
     try {
-      const response = await createProject(formData).unwrap();
-      if (response) {
-        message.success('Project created successfully!');
-        form.resetFields();
-        setProjectImage(null);
-        setProjectImageUrl('');
-
-        setProjectManagerAssigned(null);
-        setOfficeManagerAssigned(null);
-        setFinanceManagerAssigned(null);
-        setProjectOwnerAssigned(null);
+      const response = await updateProject({ id, data: formData }).unwrap();
+      if (response?.data?.success) {
+        toast.success('Project updated successfully!');
       }
     } catch (error) {
-      message.error(
-        'Failed to create project: ' + (error?.data?.message || 'Unknown error')
+      toast.error(
+        'Failed to update project: ' + (error?.data?.message || 'Unknown error')
       );
       console.error(error);
     }
   };
+
   const handleProjectImageChange = (info) => {
     const file = info.file;
     if (file) {
@@ -128,18 +148,6 @@ const EditProjects = () => {
         layout="vertical"
         onFinish={onFinish}
         className="!mt-3 p-6"
-        initialValues={{
-          name: project?.data?.name || '',
-          projectOwnerEmail: project?.data?.projectOwnerEmail || '',
-          title: project?.data?.title || '',
-          startDate: project?.data?.startDate || '',
-          liveLink: project?.data?.liveLink || '',
-          projectManager:
-            project?.data?.projectManager || projectManagerAssigned,
-          officeManager: project?.data?.officeManager || officeManagerAssigned,
-          financeManager:
-            project?.data?.financeManager || financeManagerAssigned,
-        }}
       >
         <div className="flex items-start gap-2">
           <div className="flex-1">
@@ -303,13 +311,10 @@ const EditProjects = () => {
                     <Button
                       type="primary"
                       htmlType="submit"
+                      loading={updateLoading}
                       className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
                     >
-                      {isLoading ? (
-                        <span class="loader"></span>
-                      ) : (
-                        'Create Project'
-                      )}
+                      Update Project
                     </Button>
                   </Form.Item>
                 </Col>
@@ -320,6 +325,7 @@ const EditProjects = () => {
             <Card>
               <ProjectsOwonerAssignComponent
                 setProjectsOwnerModal={setProjectsOwnerModal}
+                projectOwner={project?.projectOwner}
               />
               <ProjectsManagerAssignComponent
                 setProjectsManagerModal={setProjectsManagerModal}
