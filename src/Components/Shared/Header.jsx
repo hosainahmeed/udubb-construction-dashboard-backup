@@ -1,15 +1,18 @@
 import React from 'react';
-import { Avatar, Dropdown, Menu } from 'antd';
+import { Avatar, Dropdown, Menu, Skeleton } from 'antd';
 import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link } from 'react-router';
 import logo from '../../assets/logo.svg';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
+import { useGetProfileDataQuery } from '../../Redux/services/profileApis';
 function Header() {
+  const { data, isLoading } = useGetProfileDataQuery();
+  console.log(data);
   const user = {
-    photoURL: 'https://cdn-icons-png.flaticon.com/512/219/219988.png',
-    displayName: 'Micheal Scott',
-    email: 'Micheal46@gmail.com',
+    photoURL: data?.data?.profile_image,
+    displayName: data?.data?.name,
+    email: data?.data?.email,
   };
   const route = useNavigate();
 
@@ -44,7 +47,11 @@ function Header() {
       <img className="h-12" src={logo} alt="DealScout" />
       <div className="flex items-center  gap-4 text-2xl">
         <Dropdown overlay={menu} trigger={['click']} placement="bottomRight">
-          <Avatar size={40} src={user?.photoURL} className="cursor-pointer" />
+          {isLoading ? (
+            <Skeleton size="large" loading={isLoading} active avatar></Skeleton>
+          ) : (
+            <Avatar size={40} src={user?.photoURL} className="cursor-pointer" />
+          )}
         </Dropdown>
       </div>
     </div>

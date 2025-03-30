@@ -86,7 +86,7 @@ const Sidebar = () => {
           <NavLink
             to={item?.path}
             key={item?.path}
-            className={`button-white !w-full ${
+            className={`button-white !text-start !justify-start !w-full ${
               item?.path === location.pathname
                 ? '!bg-[var(--bg-green-high)] !text-[var(--bg-green-max)]'
                 : '!bg-[var(--bg-green-light)] !text-[var(--bg-green-max)]'

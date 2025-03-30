@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices/userApis';
 import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
+import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices/userApis';
 const { Search } = Input;
 
-function ProjectsManagerModal({
-  setProjectManagerAssigned,
-  setProjectsManagerModal,
-}) {
+function ProjectsWoners({ setProjectOwnerAssigned, setProjectsOwnerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, isLoading } = useGetAllUserQuery({
-    role: 'manager',
-    searchTerm: searchTerm,
-  });
+  const { data, isLoading } = useGetAllUserQuery({ searchTerm: searchTerm });
 
   const onSearch = (value) => {
     setSearchTerm(value);
@@ -21,12 +15,12 @@ function ProjectsManagerModal({
   if (isLoading) {
     return <div className="">Loading...</div>;
   }
-
+  console.log(data);
   const hasManagers = data?.data?.result && data.data.result.length > 0;
-console.log(data?.data?.result)
+  console.log(data?.data?.result);
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
-      <h1 className="text-2xl font-semibold">Projects Managers</h1>
+      <h1 className="text-2xl font-semibold">Projects Woners</h1>
       <Search
         placeholder="Search by name or email"
         allowClear
@@ -56,12 +50,11 @@ console.log(data?.data?.result)
                   'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'
                 }
               />
-              
+
               <Button
                 onClick={() => {
-                  setProjectManagerAssigned(user?._id);
-                  
-                  setProjectsManagerModal(false);
+                  setProjectOwnerAssigned(user?._id);
+                  setProjectsOwnerModal(false);
                 }}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
               >
@@ -75,4 +68,4 @@ console.log(data?.data?.result)
   );
 }
 
-export default ProjectsManagerModal;
+export default ProjectsWoners;

@@ -4,13 +4,10 @@ import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
 const { Search } = Input;
 
-function ProjectsManagerModal({
-  setProjectManagerAssigned,
-  setProjectsManagerModal,
-}) {
+function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading } = useGetAllUserQuery({
-    role: 'manager',
+    role: 'officeManager',
     searchTerm: searchTerm,
   });
 
@@ -23,10 +20,10 @@ function ProjectsManagerModal({
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
-console.log(data?.data?.result)
+  console.log(data?.data?.result);
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
-      <h1 className="text-2xl font-semibold">Projects Managers</h1>
+      <h1 className="text-2xl font-semibold">Office Managers</h1>
       <Search
         placeholder="Search by name or email"
         allowClear
@@ -56,12 +53,12 @@ console.log(data?.data?.result)
                   'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'
                 }
               />
-              
+
               <Button
                 onClick={() => {
-                  setProjectManagerAssigned(user?._id);
-                  
-                  setProjectsManagerModal(false);
+                  setOfficeManagerAssigned(user?._id);
+
+                  setOfficeManagerModal(false);
                 }}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
               >
@@ -75,4 +72,4 @@ console.log(data?.data?.result)
   );
 }
 
-export default ProjectsManagerModal;
+export default OfficeManager;

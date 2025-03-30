@@ -13,10 +13,10 @@ import ManagerManage from '../Pages/Dashboard/ManagerManage/ManagerManage.jsx';
 import FinanceManagement from '../Pages/Dashboard/FinanceManger/FinanceManagement.jsx';
 import OfficeManage from '../Pages/Dashboard/OfficeManager/OfficeManage.jsx';
 import ProjectManagement from '../Pages/Dashboard/ProjectManagement.jsx';
-import ProjectForm from '../Pages/Dashboard/ProjectForm.jsx';
 import ProjectDetails from '../Pages/Dashboard/ProjectDetails.jsx';
 import ProjectPhotos from '../Components/Project_Details_photo/ProjectPhotos.jsx';
 import PrivateRoute from './PrivateRoute.jsx';
+import CreateNewProject from '../Pages/Dashboard/CreateNewProject';
 export const Routes = createBrowserRouter([
   {
     path: '/',
@@ -57,7 +57,7 @@ export const Routes = createBrowserRouter([
       },
       {
         path: '/add-new-project',
-        element: <ProjectForm />,
+        element: <CreateNewProject />,
       },
       {
         path: '/terms-&-condition',

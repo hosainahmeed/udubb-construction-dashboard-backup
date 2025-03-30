@@ -1,23 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, notification } from "antd";
 import PageHeading from "../../Components/Shared/PageHeading.jsx";
 import JoditComponent from "../../Components/Shared/JoditComponent.jsx";
-// import {
-//   useGetConditionsQuery,
-//   usePostConditionsMutation,
-// } from "../../Redux/api/termsConditionsApis";
+import { useGetPolicyQuery } from "../../Redux/services/policyApis.js";
+import { usePostTermsConditionsMutation } from "../../Redux/services/termsConditionsApis.js";
+
 
 const PrivacyPolicy = () => {
   const [content, setContent] = useState("");
-  //   const { data, isLoading } = useGetConditionsQuery({});
-  //   const [setDescription, { isLoading: isSubmitting }] =
-  //     usePostConditionsMutation();
+    const { data, isLoading } = useGetPolicyQuery({});
+    const [setDescription, { isLoading: isSubmitting }] =
+      usePostTermsConditionsMutation();
 
-  //   useEffect(() => {
-  //     if (data?.data?.description) {
-  //       setContent(data.data.description);
-  //     }
-  //   }, [data]);
+    useEffect(() => {
+      if (data?.data?.description) {
+        setContent(data.data.description);
+      }
+    }, [data]);
 
   const handleLogContent = async () => {
     try {

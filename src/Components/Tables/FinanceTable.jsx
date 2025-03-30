@@ -8,6 +8,7 @@ import {
   useDeleteUserMutation,
   useGetAllUserQuery,
 } from '../../Redux/services/pagesApisServices/userApis';
+import UsernameImage from '../../Utils/Sideber/UserImage';
 const FinanceTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -72,7 +73,7 @@ const FinanceTable = () => {
       dataIndex: 'user',
       key: 'user',
       render: (user) => (
-        <UserImage
+        <UsernameImage
           image={user?.profile_image}
           name={user?.name}
           email={user?.email}
@@ -156,7 +157,7 @@ const FinanceTable = () => {
       >
         {selectedUser && (
           <div>
-            <UserImage
+            <UsernameImage
               image={selectedUser.profile_image}
               name={selectedUser.name}
               email={selectedUser.email}

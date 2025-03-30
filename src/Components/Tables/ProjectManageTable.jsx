@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Popconfirm, Table, Modal } from 'antd';
-import UserImage from '../../Utils/Sideber/UserImage';
+import { Table, Modal } from 'antd';
 import { Space, Button } from 'antd';
 import { IoEyeSharp } from 'react-icons/io5';
-import { MdOutlineArrowOutward } from 'react-icons/md';
+import { MdEdit, MdOutlineArrowOutward } from 'react-icons/md';
 import { Link } from 'react-router';
 import { useGetAllProjectsQuery } from '../../Redux/services/pagesApisServices/projectApis';
 import UsernameImage from '../../Utils/Sideber/UserImage';
@@ -26,7 +25,6 @@ const ProjectManageTable = () => {
         startDate: project?.startDate || 'N/A',
       },
     })) || [];
-console.log(projectDataInformation)
   const showProjectModal = (record) => {
     setSelectedProject(record.project);
     setIsModalVisible(true);
@@ -49,7 +47,10 @@ console.log(projectDataInformation)
       key: 'project',
       render: (project) => (
         <UsernameImage
-          image={project?.projectImage || 'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'}
+          image={
+            project?.projectImage ||
+            'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'
+          }
           name={project?.name}
           email={project?.projectOwnerEmail}
         />
@@ -77,6 +78,11 @@ console.log(projectDataInformation)
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
+          <Link to={`/add-new-project`} state={record.key}>
+            <Button type="default" shape="circle">
+              <MdEdit />
+            </Button>
+          </Link>
           <Button
             onClick={() => showProjectModal(record)}
             type="default"

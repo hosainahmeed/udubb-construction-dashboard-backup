@@ -9,6 +9,7 @@ import {
   useGetAllUserQuery,
 } from '../../Redux/services/pagesApisServices/userApis';
 import toast from 'react-hot-toast';
+import UsernameImage from '../../Utils/Sideber/UserImage';
 
 const ManagerTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -74,7 +75,7 @@ const ManagerTable = () => {
       dataIndex: 'user',
       key: 'user',
       render: (user) => (
-        <UserImage
+        <UsernameImage
           image={user?.profile_image}
           name={user?.name}
           email={user?.email}
@@ -159,7 +160,7 @@ const ManagerTable = () => {
       >
         {selectedUser && (
           <div>
-            <UserImage
+            <UsernameImage
               image={selectedUser.profile_image}
               name={selectedUser.name}
               email={selectedUser.email}

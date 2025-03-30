@@ -19,7 +19,7 @@ const UserManageTable = () => {
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
+console.log(data?.data?.result)
   const userDataInformation =
     data?.data?.result?.map((user, index) => ({
       key: user._id,
@@ -162,7 +162,7 @@ const UserManageTable = () => {
       >
         {selectedUser && (
           <div>
-            <UserImage
+            <UsernameImage
               image={selectedUser.profile_image}
               name={selectedUser.name}
               email={selectedUser.email}

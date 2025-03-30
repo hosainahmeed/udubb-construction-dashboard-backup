@@ -1,42 +1,37 @@
-import React, { useState } from "react";
-import { Button, notification } from "antd";
-import JoditComponent from "../../Components/Shared/JoditComponent.jsx";
-import PageHeading from "../../Components/Shared/PageHeading.jsx";
-// import {
-//   useGetConditionsQuery,
-//   usePostConditionsMutation,
-// } from "../../Redux/api/termsConditionsApis";
-
+import React, { useEffect, useState } from 'react';
+import { Button, notification } from 'antd';
+import JoditComponent from '../../Components/Shared/JoditComponent.jsx';
+import PageHeading from '../../Components/Shared/PageHeading.jsx';
+import {
+  useGetTermsConditionsQuery,
+  usePostTermsConditionsMutation,
+} from '../../Redux/services/termsConditionsApis.js';
+import toast from 'react-hot-toast';
+useGetTermsConditionsQuery;
 const TermsCondition = () => {
-  const [content, setContent] = useState("");
-  //   const { data, isLoading } = useGetConditionsQuery({});
-  //   const [setDescription, { isLoading: isSubmitting }] =
-  //     usePostConditionsMutation();
+  const [content, setContent] = useState('');
+  const { data, isLoading } = useGetTermsConditionsQuery({});
+  const [setDescription, { isLoading: isSubmitting }] =
+    usePostTermsConditionsMutation();
 
-  //   useEffect(() => {
-  //     if (data?.data?.description) {
-  //       setContent(data.data.description);
-  //     }
-  //   }, [data]);
+  useEffect(() => {
+    if (data?.data?.description) {
+      setContent(data?.data?.description);
+    }
+  }, [data]);
 
   const handleLogContent = async () => {
     try {
-      //   await setDescription({ description: content }).unwrap();
-      notification.success({
-        message: "Success",
-        description: "Terms & Conditions updated successfully!",
-      });
+      await setDescription({ description: content }).unwrap();
+      toast.success('Terms & Conditions updated successfully!');
     } catch (error) {
-      notification.error({
-        message: "Error",
-        description: "Failed to update Terms & Conditions. Please try again.",
-      });
+      toast.error('Failed to update Terms & Conditions. Please try again.');
     }
   };
 
-  //   if (isLoading) {
-  //     return <p>..loading</p>;
-  //   }
+  if (isLoading) {
+    return <p>..loading</p>;
+  }
 
   return (
     <>
@@ -47,16 +42,15 @@ const TermsCondition = () => {
       {/* Button to log content */}
       <Button
         onClick={handleLogContent}
-        // disabled={isSubmitting}
+        disabled={isSubmitting}
         style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "10px",
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: '10px',
         }}
         className="max-w-48 sidebar-button-black"
       >
-        {/* {isSubmitting ? "Submitting..." : "Submit"} */}
-        Submit
+        {isSubmitting ? 'Submitting...' : 'Submit'}
       </Button>
     </>
   );
