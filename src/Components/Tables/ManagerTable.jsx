@@ -20,6 +20,7 @@ const ManagerTable = () => {
     page: currentPage,
     role: 'manager',
   });
+  console.log(currentPage)
   const managerInformation =
     data?.data?.result?.map((user, index) => ({
       key: user._id,
@@ -139,7 +140,10 @@ const ManagerTable = () => {
           },
         }}
         loading={isLoading}
-        onChange={(page) => setCurrentPage(page)}
+        onChange={(page) => {
+          console.log("asdkjsad akjdas dkjdas askjdsa d",page)
+          setCurrentPage(page.current)
+        }}
       />
       <Modal
         title="User Details"

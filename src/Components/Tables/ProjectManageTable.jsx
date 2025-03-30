@@ -8,7 +8,10 @@ import { useGetAllProjectsQuery } from '../../Redux/services/pagesApisServices/p
 import UsernameImage from '../../Utils/Sideber/UserImage';
 
 const ProjectManageTable = () => {
-  const { data, isLoading } = useGetAllProjectsQuery();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading } = useGetAllProjectsQuery({
+    page: currentPage,
+  });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
@@ -18,7 +21,7 @@ const ProjectManageTable = () => {
       sl_No: index + 1,
       project: {
         name: project?.name || 'N/A',
-        projectImage: project?.projectImage || 'N/A',
+        projectImage: project?.projectImage || '',
         title: project?.title || 'N/A',
         projectOwnerEmail: project?.projectOwnerEmail || 'N/A',
         liveLink: project?.liveLink || 'N/A',
@@ -26,7 +29,7 @@ const ProjectManageTable = () => {
       },
     })) || [];
   const showProjectModal = (record) => {
-    setSelectedProject(record.project);
+    setSelectedProject(record?.project);
     setIsModalVisible(true);
   };
 
@@ -78,7 +81,7 @@ const ProjectManageTable = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <Link to={`/add-new-project`} state={record.key}>
+          <Link to={`/edit-project`} state={record.key}>
             <Button type="default" shape="circle">
               <MdEdit />
             </Button>
@@ -90,7 +93,7 @@ const ProjectManageTable = () => {
           >
             <IoEyeSharp />
           </Button>
-          <Link to={`/project-manage/${record.key}`}>
+          <Link to={`/project-manage/${record?.key}`}>
             <Button type="default" shape="circle">
               <MdOutlineArrowOutward />
             </Button>
@@ -107,6 +110,7 @@ const ProjectManageTable = () => {
         className="mt-2"
         dataSource={projectDataInformation}
         columns={columns}
+        onChange={(page) => setCurrentPage(page?.current)}
         pagination={{
           pageSize: data?.data?.meta?.limit,
           total: data?.data?.meta?.total,
@@ -131,22 +135,24 @@ const ProjectManageTable = () => {
         {selectedProject && (
           <div>
             <p>
-              <strong>Project Name:</strong> {selectedProject.name}
+              <strong>Project Name:</strong> {selectedProject?.name}
             </p>
             <p>
-              <strong>Title:</strong> {selectedProject.title}
+              <strong>Title:</strong> {selectedProject?.title}
             </p>
             <p>
               <strong>Project Owner Email:</strong>{' '}
-              {selectedProject.projectOwnerEmail}
+              {selectedProject?.projectOwnerEmail}
             </p>
             <p>
               <strong>Live Link:</strong>{' '}
-              <a href={selectedProject.liveLink}>{selectedProject.liveLink}</a>
+              <a href={selectedProject?.liveLink}>
+                {selectedProject?.liveLink}
+              </a>
             </p>
             <p>
               <strong>Start Date:</strong>{' '}
-              {new Date(selectedProject.startDate).toLocaleDateString()}
+              {new Date(selectedProject?.startDate).toLocaleDateString()}
             </p>
           </div>
         )}

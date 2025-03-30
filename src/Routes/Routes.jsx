@@ -17,6 +17,7 @@ import ProjectDetails from '../Pages/Dashboard/ProjectDetails.jsx';
 import ProjectPhotos from '../Components/Project_Details_photo/ProjectPhotos.jsx';
 import PrivateRoute from './PrivateRoute.jsx';
 import CreateNewProject from '../Pages/Dashboard/CreateNewProject';
+import EditProjects from '../Pages/Dashboard/EditProjects.jsx';
 export const Routes = createBrowserRouter([
   {
     path: '/',
@@ -58,6 +59,10 @@ export const Routes = createBrowserRouter([
       {
         path: '/add-new-project',
         element: <CreateNewProject />,
+      },
+      {
+        path: '/edit-project',
+        element: <EditProjects />,
       },
       {
         path: '/terms-&-condition',

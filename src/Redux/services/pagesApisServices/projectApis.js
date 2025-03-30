@@ -3,9 +3,10 @@ import baseApis from '../../baseApis/baseApis';
 export const projectApis = baseApis.injectEndpoints({
   endpoints: (builder) => ({
     getAllProjects: builder.query({
-      query: () => ({
+      query: ({ searchTerm, page }) => ({
         url: `/project/get-all-project`,
         method: 'GET',
+        params: { searchTerm, page },
       }),
       providesTags: ['project'],
     }),
@@ -24,6 +25,7 @@ export const projectApis = baseApis.injectEndpoints({
       }),
       invalidatesTags: ['project'],
     }),
+    
   }),
 });
 

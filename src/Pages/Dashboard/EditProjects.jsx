@@ -29,12 +29,12 @@ import OfficeManagerAssignComponent from '../../Components/AssignComponent/Offic
 import FinanceManagerAssignComponent from '../../Components/AssignComponent/FinanceManagerAssignComponent';
 import { useLocation } from 'react-router';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-const CreateNewProject = () => {
+const EditProjects = () => {
   const location = useLocation();
   const id = location?.state;
-  const { data: project, isLoading: projectsLoading } =
+  const { data: project } =
     useGetSingleProjectQuery({ id: id });
 
   const [form] = Form.useForm();
@@ -383,4 +383,4 @@ const CreateNewProject = () => {
   );
 };
 
-export default CreateNewProject;
+export default EditProjects;

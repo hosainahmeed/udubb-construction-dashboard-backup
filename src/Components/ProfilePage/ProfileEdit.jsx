@@ -1,7 +1,7 @@
 import { Button, Form, Input } from 'antd';
 import React, { useEffect } from 'react';
 import { useUpdateProfileDataMutation } from '../../Redux/services/profileApis';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const ProfileEdit = ({ image, data }) => {
   const [form] = Form.useForm();

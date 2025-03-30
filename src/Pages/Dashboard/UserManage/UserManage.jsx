@@ -12,9 +12,9 @@ const UserManage = () => {
   const handleSubmit = async () => {
     form.validateFields().then(async (values) => {
       const data = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
+        name: values?.name,
+        email: values?.email,
+        password: values?.password,
         role: 'user',
       };
       try {
