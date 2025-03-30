@@ -19,7 +19,6 @@ const UserManageTable = () => {
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-console.log(data?.data?.result)
   const userDataInformation =
     data?.data?.result?.map((user, index) => ({
       key: user._id,
@@ -59,10 +58,8 @@ console.log(data?.data?.result)
       } else {
         toast.error(res?.error?.data?.message || 'Failed to delete user.');
       }
-      console.log(res);
     } catch (error) {
       toast.error('Failed to delete user.');
-      console.log(error);
     }
   };
 

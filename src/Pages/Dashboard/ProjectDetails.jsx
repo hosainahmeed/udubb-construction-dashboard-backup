@@ -20,7 +20,6 @@ function ProjectDetails() {
       </div>
     );
   }
-  console.log(project);
   const projectDetails = [
     {
       id: 1,

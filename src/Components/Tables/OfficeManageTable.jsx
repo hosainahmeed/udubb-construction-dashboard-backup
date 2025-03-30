@@ -10,6 +10,7 @@ import {
   useGetAllUserQuery,
 } from '../../Redux/services/pagesApisServices/userApis';
 import UsernameImage from '../../Utils/Sideber/UserImage';
+import toast from 'react-hot-toast';
 const OfficeManageTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,15 +53,13 @@ const OfficeManageTable = () => {
     try {
       const res = await deleteUser({ id });
       if (res?.data?.success) {
-        console.log(res);
         toast.success(res?.data?.message || 'Manager deleted successfully.');
       } else {
         toast.error(res?.error?.data?.message || 'Failed to delete Manager.');
       }
-      console.log(res);
     } catch (error) {
       toast.error('Failed to delete Manager.');
-      console.log(error);
+  
     }
   };
   const columns = [

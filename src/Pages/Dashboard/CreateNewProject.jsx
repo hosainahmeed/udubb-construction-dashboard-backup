@@ -30,6 +30,7 @@ import ProjectsManagerAssignComponent from '../../Components/AssignComponent/Pro
 import OfficeManagerAssignComponent from '../../Components/AssignComponent/OfficeManagerAssignComponent';
 import FinanceManagerAssignComponent from '../../Components/AssignComponent/FinanceManagerAssignComponent';
 import { useLocation } from 'react-router';
+import toast from 'react-hot-toast';
 
 const { Title, Text } = Typography;
 
@@ -38,7 +39,7 @@ const CreateNewProject = () => {
   const id = location?.state;
   const { data: project, isLoading: projectsLoading } =
     useGetSingleProjectQuery({ id: id });
-  console.log(' ashdjs kjkadh kjahsd ', project?.data?.projectOwnerEmail);
+
   const [form] = Form.useForm();
   const [projectImage, setProjectImage] = useState(null);
   const [projectImageUrl, setProjectImageUrl] = useState('');
@@ -51,7 +52,7 @@ const CreateNewProject = () => {
   const [officeManagerAssigned, setOfficeManagerAssigned] = useState(false);
   const [financeManagerAssigned, setFinanceManagerAssigned] = useState(false);
   const [createProject, { isLoading }] = useCreateProjectsMutation();
-  console.log(projectManagerAssigned);
+
   const onFinish = async (values) => {
     const formData = new FormData();
 
@@ -100,7 +101,7 @@ const CreateNewProject = () => {
     }
   };
   const handleProjectImageChange = (info) => {
-    console.log(info.file);
+
     const file = info.file;
     if (file) {
       setProjectImage(file);
@@ -308,7 +309,11 @@ const CreateNewProject = () => {
                       htmlType="submit"
                       className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
                     >
-                      {isLoading ? <Spin size="small" /> : 'Create Project'}
+                      {isLoading ? (
+                        <span class="loader"></span>
+                      ) : (
+                        'Create Project'
+                      )}
                     </Button>
                   </Form.Item>
                 </Col>

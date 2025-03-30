@@ -29,7 +29,7 @@ const FinanceManagement = () => {
           toast.error(res?.error?.data?.message || 'Failed to create user.');
         }
       } catch (error) {
-        console.log(error);
+        toast.error(error?.data?.message || 'Failed to create user.');
       }
     });
   };
@@ -84,7 +84,7 @@ const FinanceManagement = () => {
               htmlType="submit"
               className="!bg-[#213555] !text-white !px-6 !py-5"
             >
-              {isCreating ? <Spin size="small" /> : 'Create'}
+              {isCreating ? <span class="loader"></span> : 'Create'}
             </Button>
           </Form.Item>
         </Form>

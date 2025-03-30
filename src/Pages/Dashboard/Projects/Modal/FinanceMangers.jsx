@@ -20,7 +20,7 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
-  console.log(data?.data?.result);
+
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
       <h1 className="text-3xl font-bold">Finance Managers</h1>

@@ -15,7 +15,6 @@ const Otp = () => {
   const [form] = Form.useForm();
 
   const handleContinue = async (values) => {
-    console.log('OTP:', values.otp);
     const otp = Number(values.otp);
     const email = localStorage.getItem('forgetEmail');
     if (values.otp.length !== 6) {
@@ -40,7 +39,7 @@ const Otp = () => {
 
   const handleResend = async () => {
     form.resetFields();
-    console.log('/auth/resend-reset-code');
+
     const email = localStorage.getItem('forgetEmail');
     try {
       if (!email) {
@@ -52,12 +51,10 @@ const Otp = () => {
         email: email,
       };
       const res = await resendOtp({ data }).unwrap();
-      console.log(res);
     } catch (error) {}
-    // Logic for resending OTP would go here
     navigate('/otp');
   };
-
+// TODO : add resend otp
   return (
     <div
       style={{

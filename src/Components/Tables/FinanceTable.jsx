@@ -9,6 +9,7 @@ import {
   useGetAllUserQuery,
 } from '../../Redux/services/pagesApisServices/userApis';
 import UsernameImage from '../../Utils/Sideber/UserImage';
+import toast from 'react-hot-toast';
 const FinanceTable = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -58,7 +59,6 @@ const FinanceTable = () => {
       
     } catch (error) {
       toast.error('Failed to delete Manager.');
-      console.log(error);
     }
   };
   const columns = [

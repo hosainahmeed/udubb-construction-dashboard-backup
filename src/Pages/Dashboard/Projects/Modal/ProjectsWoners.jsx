@@ -15,9 +15,9 @@ function ProjectsWoners({ setProjectOwnerAssigned, setProjectsOwnerModal }) {
   if (isLoading) {
     return <div className="">Loading...</div>;
   }
-  console.log(data);
-  const hasManagers = data?.data?.result && data.data.result.length > 0;
-  console.log(data?.data?.result);
+
+  const hasManagers = data?.data?.result && data?.data?.result?.length > 0;
+
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
       <h1 className="text-2xl font-semibold">Projects Woners</h1>

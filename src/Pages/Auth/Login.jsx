@@ -18,7 +18,7 @@ const Login = () => {
         password: values.password,
       };
       const res = await handleLogin({ data });
-      console.log(res.data);
+
       if (res?.data?.success) {
         localStorage.removeItem('accessToken');
         localStorage.setItem('accessToken', res?.data?.data?.accessToken);

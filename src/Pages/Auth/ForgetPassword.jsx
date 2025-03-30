@@ -11,7 +11,6 @@ const ForgetPassword = () => {
   const [forgetEmail, { isLoading: isForgetLoading }] =
     useForgetEmailPostMutation();
   const onFinish = (values) => {
-    console.log('Success:', values);
     localStorage.setItem('forgetEmail', values.email);
     const data = { email: values.email };
     forgetEmail({ data });

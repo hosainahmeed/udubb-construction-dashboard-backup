@@ -22,7 +22,7 @@ const ChangePassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
   const onFinish = async (values) => {
-    console.log('Success:', values);
+
     const ChangePasswordDatas = {
       oldPassword: values.oldPassword,
       newPassword: values.newPassword,
@@ -30,7 +30,6 @@ const ChangePassword = () => {
     };
     try {
       const res = await setNewPassword(ChangePasswordDatas).unwrap();
-      console.log(res);
       if (res?.data?.success) {
         toast.success(res?.data?.message || 'Password Changed successfully.');
         localStorage.removeItem('accessToken');

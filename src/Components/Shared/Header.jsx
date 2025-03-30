@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router';
 import { useGetProfileDataQuery } from '../../Redux/services/profileApis';
 function Header() {
   const { data, isLoading } = useGetProfileDataQuery();
-  console.log(data);
   const user = {
     photoURL: data?.data?.profile_image,
     displayName: data?.data?.name,
