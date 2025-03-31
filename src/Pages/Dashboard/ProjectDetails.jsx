@@ -1,7 +1,6 @@
 import React from 'react';
 import PageHeading from '../../Components/Shared/PageHeading';
-import { FaEye } from 'react-icons/fa';
-import { Button, Image, Select } from 'antd';
+import { Button, Image } from 'antd';
 import { Link, useParams } from 'react-router';
 import { useGetSingleProjectQuery } from '../../Redux/services/pagesApisServices/projectApis';
 import { imageUrl } from '../../Utils/server';
@@ -95,10 +94,10 @@ function ProjectDetails() {
             <h1 className="text-lg font-semibold">Project Manager</h1>
             <div className="flex items-center gap-3">
               <div className="w-32 h-24 overflow-hidden rounded-md">
-                <img
+                <Image
                   className="w-full h-full object-cover"
                   src={
-                    projectData?.projectManager?.profile_image ||
+                    imageUrl(projectData?.projectManager?.profile_image) ||
                     'https://via.placeholder.com/150'
                   }
                   alt={projectData?.projectManager?.name}
@@ -124,7 +123,7 @@ function ProjectDetails() {
             <h1 className="text-lg font-semibold">Finance Manager</h1>
             <div className="flex items-center gap-3">
               <div className="w-32 h-24 overflow-hidden rounded-md">
-                <img
+                <Image
                   className="w-full h-full object-cover"
                   src={
                     imageUrl(projectData?.financeManager?.profile_image) ||
@@ -153,10 +152,10 @@ function ProjectDetails() {
             <h1 className="text-lg font-semibold">Office Manager</h1>
             <div className="flex items-center gap-3">
               <div className="w-32 h-24 overflow-hidden rounded-md">
-                <img
+                <Image
                   className="w-full h-full object-cover"
                   src={
-                    projectData?.officeManager?.profile_image ||
+                    imageUrl(projectData?.officeManager?.profile_image) ||
                     'https://via.placeholder.com/150'
                   }
                   alt={projectData?.officeManager?.name}

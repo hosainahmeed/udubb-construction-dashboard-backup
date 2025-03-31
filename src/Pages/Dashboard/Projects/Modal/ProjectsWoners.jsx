@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices/userApis';
+import toast from 'react-hot-toast';
 const { Search } = Input;
 
 function ProjectsWoners({ setProjectOwnerAssigned, setProjectsOwnerModal }) {
@@ -57,6 +58,8 @@ function ProjectsWoners({ setProjectOwnerAssigned, setProjectsOwnerModal }) {
               <Button
                 onClick={() => {
                   setProjectOwnerAssigned(user?._id);
+                  localStorage.setItem('projectOwner', user?._id);
+                  toast.success('Project owner assigned!');
                   setProjectsOwnerModal(false);
                 }}
                 className="!bg-[#213555] !text-white !px-6 !py-5"

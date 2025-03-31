@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices/userApis';
 import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
+import toast from 'react-hot-toast';
 const { Search } = Input;
 
 function ProjectsManagerModal({
@@ -56,11 +57,12 @@ function ProjectsManagerModal({
                   'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'
                 }
               />
-              
+
               <Button
                 onClick={() => {
                   setProjectManagerAssigned(user?._id);
-                  
+                  localStorage.setItem('projectManager', user?._id);
+                  toast.success('Manager assigned successfully');
                   setProjectsManagerModal(false);
                 }}
                 className="!bg-[#213555] !text-white !px-6 !py-5"

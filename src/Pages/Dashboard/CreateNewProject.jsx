@@ -66,10 +66,14 @@ const CreateNewProject = () => {
         ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
         : new Date().toISOString(),
       liveLink: values.liveStreamLink,
-      projectManager: projectManagerAssigned,
-      officeManager: officeManagerAssigned,
-      financeManager: financeManagerAssigned,
-      projectOwner: projectOwnerAssigned,
+      projectManager:
+        projectManagerAssigned || localStorage.getItem('projectManager') || '',
+      officeManager:
+        officeManagerAssigned || localStorage.getItem('officeManager') || '',
+      financeManager:
+        financeManagerAssigned || localStorage.getItem('financeManager') || '',
+      projectOwner:
+        projectOwnerAssigned || localStorage.getItem('projectOwner') || '',
     };
 
     Object.entries(dataPayload).forEach(([key, value]) => {
@@ -80,18 +84,21 @@ const CreateNewProject = () => {
 
     try {
       const response = await createProject(formData).unwrap();
-      if (response) {
-        toast.success(
-          response?.data?.message || 'Project created successfully.'
-        );
+      if (response?.success) {
+        toast.success(response?.message || 'Project created successfully.');
         form.resetFields();
         setProjectImage(null);
         setProjectImageUrl('');
-
         setProjectManagerAssigned(null);
         setOfficeManagerAssigned(null);
         setFinanceManagerAssigned(null);
         setProjectOwnerAssigned(null);
+        localStorage.removeItem('financeManager');
+        localStorage.removeItem('officeManager');
+        localStorage.removeItem('projectManager');
+        localStorage.removeItem('projectOwner');
+      } else {
+        toast.error(response?.data?.message || 'Failed to create project.');
       }
     } catch (error) {
       toast.error(error?.data?.message || 'Failed to create project.');

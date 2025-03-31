@@ -22,8 +22,21 @@ const TermsCondition = () => {
 
   const handleLogContent = async () => {
     try {
-      await setDescription({ description: content }).unwrap();
-      toast.success('Terms & Conditions updated successfully!');
+      console.log(content);
+      const data = {
+        description: content,
+      };
+      const res = await setDescription({ data }).unwrap();
+      if (res?.success) {
+        toast.success(
+          res?.message || 'Terms & Conditions updated successfully!'
+        );
+      } else {
+        toast.error(
+          res?.message ||
+            'Failed to update Terms & Conditions. Please try again.'
+        );
+      }
     } catch (error) {
       toast.error('Failed to update Terms & Conditions. Please try again.');
     }

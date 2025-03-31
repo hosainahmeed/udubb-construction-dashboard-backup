@@ -11,6 +11,7 @@ import {
   Typography,
   message,
   Modal,
+  Image,
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
@@ -51,7 +52,6 @@ const EditProjects = () => {
   const [financeManagerAssigned, setFinanceManagerAssigned] = useState(null);
   const [updateProject, { isLoading: updateLoading }] =
     useUpdateProjectMutation();
-  console.log(project?.projectOwner);
   useEffect(() => {
     if (project) {
       form.setFieldsValue({
@@ -106,13 +106,17 @@ const EditProjects = () => {
 
     try {
       const response = await updateProject({ id, data: formData }).unwrap();
-      if (response?.data?.success) {
+      if (response?.success) {
+        localStorage.removeItem('projectManager');
+        localStorage.removeItem('officeManager');
+        localStorage.removeItem('financeManager');
+        localStorage.removeItem('projectOwner');
         toast.success('Project updated successfully!');
+      } else {
+        toast.error(response?.message || 'Unknown error');
       }
     } catch (error) {
-      toast.error(
-        'Failed to update project: ' + (error?.data?.message || 'Unknown error')
-      );
+      toast.error(error?.message || 'Unknown error');
       console.error(error);
     }
   };
@@ -165,7 +169,7 @@ const EditProjects = () => {
                     <Card className="h-38 relative !border-2 !border-dashed !border-gray-300 flex items-center justify-center overflow-hidden">
                       {projectImageUrl ? (
                         <div className="w-full h-full relative">
-                          <img
+                          <Image
                             src={projectImageUrl}
                             alt="Project Preview"
                             className="w-full h-full object-cover"
@@ -329,13 +333,16 @@ const EditProjects = () => {
               />
               <ProjectsManagerAssignComponent
                 setProjectsManagerModal={setProjectsManagerModal}
+                projectManager={project?.projectManager}
               />
 
               <OfficeManagerAssignComponent
                 setOfficeManagerModal={setOfficeManagerModal}
+                officeManager={project?.officeManager}
               />
               <FinanceManagerAssignComponent
                 setFinanceManagerModal={setFinanceManagerModal}
+                financeManager={project?.financeManager}
               />
             </Card>
           </div>
