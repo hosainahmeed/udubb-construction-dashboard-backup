@@ -60,7 +60,7 @@ const ForgetPassword = () => {
             className="w-full !bg-[#213555]"
             style={{ marginTop: 10 }}
           >
-            {isForgetLoading ? 'Loading...' : ' Continue with Email'}
+            {isForgetLoading ? <span class="loader"></span> : ' Continue with Email'}
           </Button>
         </Form>
       </div>

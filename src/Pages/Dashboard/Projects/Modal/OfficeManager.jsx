@@ -9,9 +9,10 @@ const { Search } = Input;
 
 function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, isLoading } = useGetAllUserQuery({
+  const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'officeManager',
     searchTerm: searchTerm,
+    limit: 999,
   });
 
   const onSearch = (value) => {
@@ -19,17 +20,25 @@ function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
   };
 
   if (isLoading) {
-    return <div className="">Loading...</div>;
+    return <span class="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
+
+  const handleAssign = (user) => {
+    setOfficeManagerAssigned(user?._id);
+    localStorage.setItem('officeManager', user?._id);
+    refetch();
+    toast.success('Office manager assigned.');
+    setOfficeManagerModal(false);
+  };
 
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
       <div className="w-full flex flex-col items-start">
         <h1 className="text-2xl font-semibold leading-none">Office Managers</h1>
         <small className="!font-light !text-xs -mt-2 bg-amber-100 !pr-8 py-1 rounded-md pl-2 flex justify-between leading-none items-center w-full ">
-          if you dont find any manager please search or add
+          if you dont find any office manager please search or add
           <Link to="/Office-manage">
             <Button shape="circle" className="!animate-pulse">
               <FaPlus />
@@ -51,7 +60,7 @@ function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
       />
       {!hasManagers ? (
         <h1 className="text-center w-full my-4">
-          <Empty description=" No Manager Found" />
+          <Empty description="No Manager Found" />
         </h1>
       ) : (
         data?.data?.result.map((user) => (
@@ -67,12 +76,7 @@ function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
               />
 
               <Button
-                onClick={() => {
-                  setOfficeManagerAssigned(user?._id);
-                  localStorage.setItem('officeManager', user?._id);
-                  toast.success('Office manager assigned.');
-                  setOfficeManagerModal(false);
-                }}
+                onClick={() => handleAssign(user)}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
               >
                 Assign

@@ -41,15 +41,13 @@ function ProjectDetails() {
         {/* Display project image if available */}
         <div className="grid grid-cols-1 gap-4">
           {projectData?.projectImage ? (
-            <div className="relative rounded-2xl overflow-hidden">
-              <div className="w-full h-[400px]">
-                <Image
-                  preview
-                  className="w-full h-full  object-cover"
-                  src={imageUrl(projectData?.projectImage)}
-                  alt={projectData?.name}
-                />
-              </div>
+            <div className="w-[500px] border-dashed border rounded-2xl flex items-center justify-center overflow-hidden h-[250px]">
+              <Image
+                preview
+                className="w-full h-full object-center object-cover"
+                src={imageUrl(projectData?.projectImage)}
+                alt={projectData?.name}
+              />
             </div>
           ) : (
             <div className="relative rounded-2xl overflow-hidden bg-gray-200 h-48 flex items-center justify-center">

@@ -20,7 +20,7 @@ const ManagerTable = () => {
     page: currentPage,
     role: 'manager',
   });
-  console.log(currentPage)
+  console.log(currentPage);
   const managerInformation =
     data?.data?.result?.map((user, index) => ({
       key: user._id,
@@ -53,6 +53,7 @@ const ManagerTable = () => {
     try {
       const res = await deleteUser({ id });
       if (res?.data?.success) {
+        setCurrentPage(1);
         toast.success(res?.data?.message || 'Manager deleted successfully.');
       } else {
         toast.error(res?.error?.data?.message || 'Failed to delete Manager.');
@@ -141,8 +142,8 @@ const ManagerTable = () => {
         }}
         loading={isLoading}
         onChange={(page) => {
-          console.log("asdkjsad akjdas dkjdas askjdsa d",page)
-          setCurrentPage(page.current)
+          console.log('asdkjsad akjdas dkjdas askjdsa d', page);
+          setCurrentPage(page.current);
         }}
       />
       <Modal

@@ -1,41 +1,45 @@
-import React, { useEffect, useState } from "react";
-import { Button, notification } from "antd";
-import PageHeading from "../../Components/Shared/PageHeading.jsx";
-import JoditComponent from "../../Components/Shared/JoditComponent.jsx";
-import { useGetPolicyQuery } from "../../Redux/services/policyApis.js";
-import { usePostTermsConditionsMutation } from "../../Redux/services/termsConditionsApis.js";
-
+import React, { useEffect, useState } from 'react';
+import { Button, notification } from 'antd';
+import PageHeading from '../../Components/Shared/PageHeading.jsx';
+import JoditComponent from '../../Components/Shared/JoditComponent.jsx';
+import {
+  useGetPolicyQuery,
+  useUpdateSettingMutation,
+} from '../../Redux/services/policyApis.js';
+import { usePostTermsConditionsMutation } from '../../Redux/services/termsConditionsApis.js';
+import toast from 'react-hot-toast';
 
 const PrivacyPolicy = () => {
-  const [content, setContent] = useState("");
-    const { data, isLoading } = useGetPolicyQuery({});
-    const [setDescription, { isLoading: isSubmitting }] =
-      usePostTermsConditionsMutation();
+  const [content, setContent] = useState('');
+  const { data, isLoading } = useGetPolicyQuery({});
+  const [setDescription] = useUpdateSettingMutation();
 
-    useEffect(() => {
-      if (data?.data?.description) {
-        setContent(data.data.description);
-      }
-    }, [data]);
+  useEffect(() => {
+    if (data?.data?.description) {
+      setContent(data?.data?.description);
+    }
+  }, [data]);
 
   const handleLogContent = async () => {
     try {
-      //   await setDescription({ description: content }).unwrap();
-      notification.success({
-        message: "Success",
-        description: "Terms & Conditions updated successfully!",
-      });
+      const data = {
+        description: content,
+      };
+      const res = await setDescription({ data }).unwrap();
+
+      if (res?.success) {
+        toast.success(
+          res?.message || 'Terms & Conditions updated successfully!'
+        );
+      }
     } catch (error) {
-      notification.error({
-        message: "Error",
-        description: "Failed to update Terms & Conditions. Please try again.",
-      });
+      toast.error(error?.message || 'Failed to update Terms & Conditions.');
     }
   };
 
-  //   if (isLoading) {
-  //     return <p>..loading</p>;
-  //   }
+  if (isLoading) {
+    return <p>..loading</p>;
+  }
 
   return (
     <>
@@ -48,13 +52,13 @@ const PrivacyPolicy = () => {
         onClick={handleLogContent}
         // disabled={isSubmitting}
         style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "10px",
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: '10px',
         }}
         className="max-w-48 sidebar-button-black"
       >
-        {/* {isSubmitting ? "Submitting..." : "Submit"} */}
+        {/* {isSubmitting ? 'Submitting...' : 'Submit'} */}
         Submit
       </Button>
     </>

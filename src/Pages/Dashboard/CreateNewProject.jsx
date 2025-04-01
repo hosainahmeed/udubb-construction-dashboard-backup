@@ -97,6 +97,7 @@ const CreateNewProject = () => {
         localStorage.removeItem('officeManager');
         localStorage.removeItem('projectManager');
         localStorage.removeItem('projectOwner');
+        window.location.reload();
       } else {
         toast.error(response?.data?.message || 'Failed to create project.');
       }

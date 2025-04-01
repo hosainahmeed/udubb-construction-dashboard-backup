@@ -1,36 +1,34 @@
 import React from 'react';
-
-import { HiOutlineNumberedList } from 'react-icons/hi2';
-import { LuCalendarClock } from 'react-icons/lu';
-import { MdManageSearch } from 'react-icons/md';
-import { RiTeamFill } from 'react-icons/ri';
-import { TbCategoryPlus } from 'react-icons/tb';
+import { FaUserTie } from 'react-icons/fa';
+import { FaUsersGear } from 'react-icons/fa6';
+import { GrMoney, GrProjects } from 'react-icons/gr';
+import { PiBuildingOfficeFill } from 'react-icons/pi';
 
 export const SidebarLink = [
   {
     path: '/',
     label: 'User Manage',
-    icon: <LuCalendarClock size={24} />,
+    icon: <FaUsersGear size={24} />,
   },
   {
     path: '/manager-manage',
     label: 'Manager Manage',
-    icon: <MdManageSearch size={24} />,
+    icon: <FaUserTie size={24} />,
   },
   {
     path: '/finance-management',
     label: 'Finance Manage',
-    icon: <TbCategoryPlus size={24} />,
+    icon: <GrMoney size={24} />,
   },
   {
     path: '/Office-manage',
     label: 'Office Manager',
-    icon: <HiOutlineNumberedList size={24} />,
+    icon: <PiBuildingOfficeFill size={24} />,
   },
   {
     path: '/project-manage',
     label: 'Project Manage',
-    icon: <RiTeamFill size={24} />,
+    icon: <GrProjects size={20} />,
   },
 ];
 

@@ -3,6 +3,8 @@ import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices
 import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router';
+import { FaPlus } from 'react-icons/fa';
 const { Search } = Input;
 
 function ProjectsManagerModal({
@@ -10,9 +12,10 @@ function ProjectsManagerModal({
   setProjectsManagerModal,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, isLoading } = useGetAllUserQuery({
+  const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'manager',
     searchTerm: searchTerm,
+    limit: 999,
   });
 
   const onSearch = (value) => {
@@ -20,14 +23,30 @@ function ProjectsManagerModal({
   };
 
   if (isLoading) {
-    return <div className="">Loading...</div>;
+    return <span class="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
+  const handleAssign = (user) => {
+    setProjectManagerAssigned(user?._id);
+    localStorage.setItem('projectManager', user?._id);
+    refetch();
+    toast.success('Manager assigned successfully');
+    setProjectsManagerModal(false);
+  };
+
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
       <h1 className="text-2xl font-semibold">Projects Managers</h1>
+      <small className="!font-light !text-xs -mt-2 bg-amber-100 !pr-8 py-1 rounded-md pl-2 flex justify-between leading-none items-center w-full ">
+        if you dont find any manager please search or add
+        <Link to="/manager-manage">
+          <Button shape="circle" className="!animate-pulse">
+            <FaPlus />
+          </Button>
+        </Link>
+      </small>
       <Search
         placeholder="Search by name or email"
         allowClear
@@ -43,7 +62,7 @@ function ProjectsManagerModal({
 
       {!hasManagers ? (
         <h1 className="text-center w-full my-4">
-          <Empty description=" No Manager Found" />
+          <Empty description="No Manager Found" />
         </h1>
       ) : (
         data?.data?.result.map((user) => (
@@ -59,12 +78,7 @@ function ProjectsManagerModal({
               />
 
               <Button
-                onClick={() => {
-                  setProjectManagerAssigned(user?._id);
-                  localStorage.setItem('projectManager', user?._id);
-                  toast.success('Manager assigned successfully');
-                  setProjectsManagerModal(false);
-                }}
+                onClick={() => handleAssign(user)}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
               >
                 Assign

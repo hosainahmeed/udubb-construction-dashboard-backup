@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices/userApis';
 import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
+import { FaPlus } from 'react-icons/fa';
+import { Link } from 'react-router';
 import toast from 'react-hot-toast';
 const { Search } = Input;
 
 function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { data, isLoading } = useGetAllUserQuery({
+  const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'financeManager',
     searchTerm: searchTerm,
+    limit: 999,
   });
 
   const onSearch = (value) => {
@@ -17,14 +20,34 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
   };
 
   if (isLoading) {
-    return <div className="">Loading...</div>;
+    return <span class="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
+  const handleAssign = (user) => {
+    setFinanceManagerAssigned(user?._id);
+    localStorage.setItem('financeManager', user?._id);
+    refetch();
+    toast.success('Finance manager assigned.');
+    setFinanceManagerModal(false);
+  };
+
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
-      <h1 className="text-3xl font-bold">Finance Managers</h1>
+      <div className="w-full flex flex-col items-start">
+        <h1 className="text-2xl font-semibold leading-none">
+          Finance Managers
+        </h1>
+        <small className="!font-light !text-xs -mt-2 bg-amber-100 !pr-8 py-1 rounded-md pl-2 flex justify-between leading-none items-center w-full ">
+          if you dont find any finance manager please search or add
+          <Link to="/finance-management">
+            <Button shape="circle" className="!animate-pulse">
+              <FaPlus />
+            </Button>
+          </Link>
+        </small>
+      </div>
       <Search
         placeholder="Search by name or email"
         allowClear
@@ -37,10 +60,9 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
         onSearch={onSearch}
         className="!w-[400px]"
       />
-
       {!hasManagers ? (
         <h1 className="text-center w-full my-4">
-          <Empty description=" No Manager Found" />
+          <Empty description="No Manager Found" />
         </h1>
       ) : (
         data?.data?.result.map((user) => (
@@ -56,12 +78,7 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
               />
 
               <Button
-                onClick={() => {
-                  setFinanceManagerAssigned(user?._id);
-                  localStorage.setItem('financeManager', user?._id);
-                  toast.success('Finance Manager assigned.');
-                  setFinanceManagerModal(false);
-                }}
+                onClick={() => handleAssign(user)}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
               >
                 Assign

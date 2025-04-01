@@ -328,7 +328,7 @@ const EditProjects = () => {
           <div className="flex-1">
             <Card>
               <ProjectsOwonerAssignComponent
-                setProjectsOwnerModal={setProjectsOwnerModal}
+                setProjectsOwnerModal={setProjectsOwnerModal} 
                 projectOwner={project?.projectOwner}
               />
               <ProjectsManagerAssignComponent
