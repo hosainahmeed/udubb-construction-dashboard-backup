@@ -1,99 +1,267 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PageHeading from '../../Components/Shared/PageHeading';
-import { Button, Image } from 'antd';
-import { Link, useParams } from 'react-router';
+import { Button, Card, Image, Spin, Empty, Divider } from 'antd';
+import { Link, useParams, useNavigate } from 'react-router';
 import { useGetSingleProjectQuery } from '../../Redux/services/pagesApisServices/projectApis';
 import { imageUrl } from '../../Utils/server';
-import { MdEdit } from 'react-icons/md';
+import {
+  MdEdit,
+  MdOutlineDocumentScanner,
+  MdDateRange,
+  MdLink,
+  MdEmail,
+  MdPerson,
+} from 'react-icons/md';
+import { FaUserTie } from 'react-icons/fa';
+import { useProjectsDocumentQuery } from '../../Redux/services/pagesApisServices/doucmentApis';
+import pdf from '../../assets/pdf.png';
 
 function ProjectDetails() {
   const params = useParams();
+  const navigate = useNavigate();
+  const [limit, setLimit] = useState(3);
+
   const { data: project, isLoading: projectsLoading } =
     useGetSingleProjectQuery({ id: params?.id });
-
   const projectData = project?.data;
+
+  const { data: documentData, isLoading: documentDataLoading } =
+    useProjectsDocumentQuery({ id: projectData?._id, limit: limit });
+
+  const handleViewAllDocuments = () => {
+    navigate('/all-document', { state: projectData?._id });
+  };
 
   if (projectsLoading) {
     return (
-      <div
-        style={{
-          height: 'calc(100% - 10px)',
-        }}
-        className="flex justify-center items-center w-full"
-      >
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      <div className="flex justify-center items-center w-full h-screen">
+        <Spin size="large" tip="Loading project details..." />
       </div>
     );
   }
 
   return (
-    <div>
-      <PageHeading text={'Project Details'} />
-      <div>
-        <div className="flex justify-between items-center my-3">
-          <h1 className="flex-1">Project Image</h1>
-          <Link to="/edit-project" state={params.id}>
-            <Button className="flex items-center gap-2">
-              <MdEdit /> Edit Project
-            </Button>
-          </Link>
+    <div className=" px-4 py-6 bg-white rounded-lg shadow-sm">
+      <div className="flex justify-between items-center mb-6">
+        <PageHeading text={'Project Details'} />
+        <Link to="/edit-project" state={params.id}>
+          <Button
+            type="primary"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition-all"
+          >
+            <MdEdit /> Edit Project
+          </Button>
+        </Link>
+      </div>
+
+      {/* Project Header Section */}
+      <div className="mb-10 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm">
+        <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          {projectData?.name}
+        </h1>
+        <p className="text-lg text-gray-600 mb-2">{projectData?.title}</p>
+        <div className="flex items-center text-gray-500">
+          <MdDateRange className="mr-2" />
+          <span>
+            Started on{' '}
+            {new Date(projectData?.startDate).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
         </div>
-        {/* Display project image if available */}
-        <div className="grid grid-cols-1 gap-4">
+      </div>
+
+      {/* Project Image Section */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">
+          <MdOutlineDocumentScanner className="inline-block mr-2" />
+          Project Image
+        </h2>
+        <div className="bg-gray-50 p-4 rounded-lg">
           {projectData?.projectImage ? (
-            <div className="w-[500px] border-dashed border rounded-2xl flex items-center justify-center overflow-hidden h-[250px]">
+            <div>
               <Image
                 preview
-                className="w-full h-full object-center object-cover"
+                className="w-full !max-w-48 object-center object-cover transition-all hover:scale-105 duration-300"
                 src={imageUrl(projectData?.projectImage)}
                 alt={projectData?.name}
               />
             </div>
           ) : (
-            <div className="relative rounded-2xl overflow-hidden bg-gray-200 h-48 flex items-center justify-center">
-              <p>No project image available</p>
-            </div>
+            <Empty description="No project image available" />
           )}
         </div>
-        <div className="my-12 grid grid-cols-2 gap-4">
-          <div>
-            <h1>Project Owner Email</h1>
-            <div className="rounded-lg shadow border border-[#c2c1c1] border-dashed p-3">
-              {projectData?.projectOwnerEmail}
-            </div>
+      </div>
+
+      {/* Project Documents Section */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">
+            <MdOutlineDocumentScanner className="inline-block mr-2" />
+            Project Documents
+          </h2>
+          <Button
+            type="primary"
+            onClick={handleViewAllDocuments}
+            className="bg-indigo-600 hover:bg-indigo-700 transition-all"
+          >
+            See All Documents
+          </Button>
+        </div>
+
+        {documentDataLoading ? (
+          <div className="flex justify-center p-10">
+            <Spin />
           </div>
-          <div>
-            <h1>Project Name</h1>
-            <div className="rounded-lg shadow border border-[#c2c1c1] border-dashed p-3">
-              {projectData?.name}
-            </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {documentData?.data?.result?.length > 0 ? (
+              documentData?.data?.result?.map((item) => (
+                <Link
+                  key={item?._id}
+                  target="_blank"
+                  to={item?.document_url}
+                  className="mb-3 hover:opacity-80 transition-opacity"
+                >
+                  <Card className="overflow-hidden !h-48 transition-all duration-300">
+                    <div className="flex flex-col items-start">
+                      <Image
+                        preview={false}
+                        className="!w-24 !h-24 object-contain"
+                        src={pdf}
+                        alt="PDF document"
+                      />
+
+                      <h3 className="text-lg font-medium text-start text-gray-800 mb-1">
+                        {item?.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-2">
+                        {new Date(item?.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                      <p className="text-sm text-gray-600 text-start">
+                        {item?.description}
+                      </p>
+                    </div>
+                  </Card>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full">
+                <Empty description="No project documents available" />
+              </div>
+            )}
           </div>
-          <div className="col-span-2">
-            <h1>Project Title</h1>
-            <div className="rounded-lg shadow border border-[#c2c1c1] border-dashed p-3">
-              {projectData?.title}
+        )}
+      </div>
+
+      {/* Project Details Section */}
+      <div className="mb-10">
+        <h2 className="text-xl font-semibold mb-6 text-gray-700 border-b pb-2">
+          <MdPerson className="inline-block mr-2" />
+          Project Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-blue-50 rounded-lg p-5 shadow-sm">
+            <div className="flex items-center mb-2">
+              <MdEmail className="text-blue-600 mr-2 text-xl" />
+              <h3 className="text-lg font-medium text-gray-700">
+                Project Owner Email
+              </h3>
             </div>
+            <p className="bg-white rounded-lg p-3 border border-blue-100">
+              {projectData?.projectOwnerEmail || 'Not available'}
+            </p>
           </div>
-          <div>
-            <h1>Project Start Date</h1>
-            <div className="rounded-lg shadow border border-[#c2c1c1] border-dashed p-3">
-              {new Date(projectData?.startDate).toLocaleDateString()}
+
+          <div className="bg-purple-50 rounded-lg p-5 shadow-sm">
+            <div className="flex items-center mb-2">
+              <MdPerson className="text-purple-600 mr-2 text-xl" />
+              <h3 className="text-lg font-medium text-gray-700">
+                Project Name
+              </h3>
             </div>
+            <p className="bg-white rounded-lg p-3 border border-purple-100">
+              {projectData?.name || 'Not available'}
+            </p>
           </div>
-          <div>
-            <h1>Project Stream Link</h1>
-            <div className="rounded-lg shadow border border-[#c2c1c1] border-dashed p-3">
-              {projectData?.liveLink || 'No link available'}
+
+          <div className="bg-green-50 rounded-lg p-5 shadow-sm col-span-1 md:col-span-2">
+            <div className="flex items-center mb-2">
+              <MdOutlineDocumentScanner className="text-green-600 mr-2 text-xl" />
+              <h3 className="text-lg font-medium text-gray-700">
+                Project Title
+              </h3>
             </div>
+            <p className="bg-white rounded-lg p-3 border border-green-100">
+              {projectData?.title || 'Not available'}
+            </p>
+          </div>
+
+          <div className="bg-amber-50 rounded-lg p-5 shadow-sm">
+            <div className="flex items-center mb-2">
+              <MdDateRange className="text-amber-600 mr-2 text-xl" />
+              <h3 className="text-lg font-medium text-gray-700">
+                Project Start Date
+              </h3>
+            </div>
+            <p className="bg-white rounded-lg p-3 border border-amber-100">
+              {projectData?.startDate
+                ? new Date(projectData.startDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                : 'Not available'}
+            </p>
+          </div>
+
+          <div className="bg-indigo-50 rounded-lg p-5 shadow-sm">
+            <div className="flex items-center mb-2">
+              <MdLink className="text-indigo-600 mr-2 text-xl" />
+              <h3 className="text-lg font-medium text-gray-700">
+                Project Stream Link
+              </h3>
+            </div>
+            <p className="bg-white rounded-lg p-3 border border-indigo-100">
+              {projectData?.liveLink ? (
+                <a
+                  href={projectData.liveLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  {projectData.liveLink}
+                </a>
+              ) : (
+                'No link available'
+              )}
+            </p>
           </div>
         </div>
-        <div className="mt-12 grid grid-cols-3 gap-4">
-          <div>
-            <h1 className="text-lg font-semibold">Project Manager</h1>
-            <div className="flex items-center gap-3">
-              <div className="w-32 h-24 overflow-hidden rounded-md">
+      </div>
+
+      {/* Project Team Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-6 text-gray-700 border-b pb-2">
+          <FaUserTie className="inline-block mr-2" />
+          Project Team
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Project Manager */}
+          <Card className="hover:shadow-lg transition-all duration-300">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Project Manager
+              </h3>
+              <div className="mx-auto !w-24 !h-24 rounded-full overflow-hidden border-4 border-blue-100 mb-4">
                 <Image
-                  className="w-full h-full object-cover"
+                  className="!w-full !h-full !object-cover"
                   src={
                     imageUrl(projectData?.projectManager?.profile_image) ||
                     'https://via.placeholder.com/150'
@@ -101,55 +269,83 @@ function ProjectDetails() {
                   alt={projectData?.projectManager?.name}
                 />
               </div>
-              <div className="mt-4">
-                <div className="">
-                  <p>Name: {projectData?.projectManager?.name}</p>
-                  <p>
-                    Phone Number: {projectData?.projectManager?.phone || 'N/A'}
-                  </p>
-                  <p>
-                    Email:
-                    <a href={`mailto:${projectData?.projectManager?.email}`}>
-                      {projectData?.projectManager?.email}
-                    </a>
-                  </p>
-                </div>
-              </div>
+              <h4 className="font-medium text-lg">
+                {projectData?.projectManager?.name || 'Not assigned'}
+              </h4>
+              <Divider className="my-3" />
+              <p className="flex items-center justify-center gap-2 text-gray-600">
+                <MdEmail className="text-blue-500" />
+                <a
+                  href={`mailto:${projectData?.projectManager?.email}`}
+                  className="hover:text-blue-600"
+                >
+                  {projectData?.projectManager?.email || 'N/A'}
+                </a>
+              </p>
+              <p className="flex items-center justify-center gap-2 text-gray-600 mt-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-green-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+                {projectData?.projectManager?.phone || 'N/A'}
+              </p>
             </div>
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold">Finance Manager</h1>
-            <div className="flex items-center gap-3">
-              <div className="w-32 h-24 overflow-hidden rounded-md">
+          </Card>
+
+          {/* Finance Manager */}
+          <Card className="hover:shadow-lg transition-all duration-300">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Finance Manager
+              </h3>
+              <div className="mx-auto w-24 h-24 rounded-full overflow-hidden border-4 border-green-100 mb-4">
                 <Image
                   className="w-full h-full object-cover"
                   src={
                     imageUrl(projectData?.financeManager?.profile_image) ||
-                    'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'
+                    'https://via.placeholder.com/150'
                   }
                   alt={projectData?.financeManager?.name}
                 />
               </div>
-              <div className="mt-4">
-                <div className="">
-                  <p>Name: {projectData?.financeManager?.name}</p>
-                  <p>
-                    Phone Number: {projectData?.financeManager?.phone || 'N/A'}
-                  </p>
-                  <p>
-                    Email:
-                    <a href={`mailto:${projectData?.financeManager?.email}`}>
-                      {projectData?.financeManager?.email}
-                    </a>
-                  </p>
-                </div>
-              </div>
+              <h4 className="font-medium text-lg">
+                {projectData?.financeManager?.name || 'Not assigned'}
+              </h4>
+              <Divider className="my-3" />
+              <p className="flex items-center justify-center gap-2 text-gray-600">
+                <MdEmail className="text-green-500" />
+                <a
+                  href={`mailto:${projectData?.financeManager?.email}`}
+                  className="hover:text-green-600"
+                >
+                  {projectData?.financeManager?.email || 'N/A'}
+                </a>
+              </p>
+              <p className="flex items-center justify-center gap-2 text-gray-600 mt-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-green-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+                {projectData?.financeManager?.phone || 'N/A'}
+              </p>
             </div>
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold">Office Manager</h1>
-            <div className="flex items-center gap-3">
-              <div className="w-32 h-24 overflow-hidden rounded-md">
+          </Card>
+
+          {/* Office Manager */}
+          <Card className="hover:shadow-lg transition-all duration-300">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Office Manager
+              </h3>
+              <div className="mx-auto w-24 h-24 rounded-full overflow-hidden border-4 border-purple-100 mb-4">
                 <Image
                   className="w-full h-full object-cover"
                   src={
@@ -159,22 +355,32 @@ function ProjectDetails() {
                   alt={projectData?.officeManager?.name}
                 />
               </div>
-              <div className="mt-4">
-                <div className="">
-                  <p>Name: {projectData?.officeManager?.name}</p>
-                  <p>
-                    Phone Number: {projectData?.officeManager?.phone || 'N/A'}
-                  </p>
-                  <p>
-                    Email:
-                    <a href={`mailto:${projectData?.officeManager?.email}`}>
-                      {projectData?.officeManager?.email}
-                    </a>
-                  </p>
-                </div>
-              </div>
+              <h4 className="font-medium text-lg">
+                {projectData?.officeManager?.name || 'Not assigned'}
+              </h4>
+              <Divider className="my-3" />
+              <p className="flex items-center justify-center gap-2 text-gray-600">
+                <MdEmail className="text-purple-500" />
+                <a
+                  href={`mailto:${projectData?.officeManager?.email}`}
+                  className="hover:text-purple-600"
+                >
+                  {projectData?.officeManager?.email || 'N/A'}
+                </a>
+              </p>
+              <p className="flex items-center justify-center gap-2 text-gray-600 mt-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-purple-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+                {projectData?.officeManager?.phone || 'N/A'}
+              </p>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

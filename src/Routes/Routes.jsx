@@ -18,6 +18,7 @@ import ProjectPhotos from '../Components/Project_Details_photo/ProjectPhotos.jsx
 import PrivateRoute from './PrivateRoute.jsx';
 import CreateNewProject from '../Pages/Dashboard/CreateNewProject';
 import EditProjects from '../Pages/Dashboard/EditProjects.jsx';
+import AllDocuments from '../Pages/Dashboard/AllDocuments.jsx';
 export const Routes = createBrowserRouter([
   {
     path: '/',
@@ -51,6 +52,10 @@ export const Routes = createBrowserRouter([
       {
         path: '/project-manage/:id',
         element: <ProjectDetails />,
+      },
+      {
+        path: '/all-document',
+        element: <AllDocuments />,
       },
       {
         path: '/project-all_photos',

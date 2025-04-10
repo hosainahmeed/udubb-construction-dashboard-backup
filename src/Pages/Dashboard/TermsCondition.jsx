@@ -22,7 +22,6 @@ const TermsCondition = () => {
 
   const handleLogContent = async () => {
     try {
-      console.log(content);
       const data = {
         description: content,
       };

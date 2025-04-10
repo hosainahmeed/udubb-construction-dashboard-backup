@@ -7,7 +7,10 @@ import { Link } from 'react-router';
 import { FaPlus } from 'react-icons/fa';
 const { Search } = Input;
 
-function ProjectsWoners({ setProjectOwnerAssigned, setProjectsOwnerModal }) {
+function ProjectsWoners({
+  setProjectOwnerAssigned,
+  setProjectsOwnerModal,
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading, refetch } = useGetAllUserQuery({
     searchTerm: searchTerm,

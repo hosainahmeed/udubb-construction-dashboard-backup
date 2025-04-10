@@ -50,6 +50,8 @@ const EditProjects = () => {
   const [projectManagerAssigned, setProjectManagerAssigned] = useState(null);
   const [officeManagerAssigned, setOfficeManagerAssigned] = useState(null);
   const [financeManagerAssigned, setFinanceManagerAssigned] = useState(null);
+  const [userData, setUserData] = useState({});
+
   const [updateProject, { isLoading: updateLoading }] =
     useUpdateProjectMutation();
   useEffect(() => {
@@ -328,7 +330,8 @@ const EditProjects = () => {
           <div className="flex-1">
             <Card>
               <ProjectsOwonerAssignComponent
-                setProjectsOwnerModal={setProjectsOwnerModal} 
+                userData={userData}
+                setProjectsOwnerModal={setProjectsOwnerModal}
                 projectOwner={project?.projectOwner}
               />
               <ProjectsManagerAssignComponent
@@ -388,6 +391,7 @@ const EditProjects = () => {
         width={800}
       >
         <ProjectsWoners
+          setUserData={setUserData}
           setProjectsOwnerModal={setProjectsOwnerModal}
           setProjectOwnerAssigned={setProjectOwnerAssigned}
         />
