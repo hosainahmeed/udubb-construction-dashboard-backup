@@ -180,10 +180,6 @@ jobs:
       - name: Build React Project
         run: npm run build
 
-      # Debug step to list files after build
-      - name: List files in the repository
-        run: ls -alh
-
   deploy:
     runs-on: ubuntu-latest
 
@@ -202,7 +198,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy React Dashboard to EC2
+      - name: Deploy React Dashboard to EC2 and Build on EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -214,14 +210,14 @@ jobs:
           # Copy the react project files (excluding node_modules, .git, etc.)
           rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='build' . $EC2_USER@$EC2_HOST:~/applications/dashboard/
 
-          # Now, copy the build directory to the Nginx root directory
-          rsync -avz build/* $EC2_USER@$EC2_HOST:/var/www/html/
-
-          # Install production dependencies (only if you need them, can be omitted if you just want static files)
-          ssh $EC2_USER@$EC2_HOST "cd ~/applications/dashboard && npm install --frozen-lockfile --production"
+          # Install dependencies and build the app on the EC2 instance
+          ssh $EC2_USER@$EC2_HOST "cd ~/applications/dashboard && npm install --frozen-lockfile && npm run build"
 
           # Set the environment variables (optional step)
           ssh $EC2_USER@$EC2_HOST "echo '$ENV_VARS_JSON' > ~/applications/dashboard/.env"
+
+          # Now, copy the build directory to the Nginx root directory
+          rsync -avz ~/applications/dashboard/build/* $EC2_USER@$EC2_HOST:/var/www/html/
 
           # Step 3: Configure Nginx to serve the React app
           ssh $EC2_USER@$EC2_HOST "echo '
