@@ -1,3 +1,93 @@
+# name: Deploy React Dashboard to EC2
+
+# on:
+#   push:
+#     branches:
+#       - "deployment" # Trigger deployment on push to 'deployment' branch
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest # This will run on a fresh Ubuntu instance
+
+#     steps:
+#       - name: Checkout the repository
+#         uses: actions/checkout@v3 # Checkout the code from your repository
+
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: "20.15" # Use the specified Node.js version
+
+#       - name: Install Dependencies
+#         run: npm install --frozen-lockfile # Install dependencies using package-lock.json
+
+#       - name: Build React Project
+#         run: npm run build # Build the React app to generate static files in the 'build' folder
+
+#   deploy:
+#     runs-on: ubuntu-latest # Runs deployment on Ubuntu
+
+#     needs: build # This job will depend on the successful completion of the 'build' job
+
+#     steps:
+#       - name: Checkout the repository again (for deployment)
+#         uses: actions/checkout@v3 # Checkout the code again for deployment purposes
+
+#       - name: Set up SSH to EC2
+#         env:
+#           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }} # SSH private key stored in GitHub Secrets
+#         run: |
+#           mkdir -p ~/.ssh  # Create the .ssh directory
+#           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa  # Add the private SSH key
+#           chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the private key
+#           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts  # Add EC2 to known hosts
+
+#       - name: Deploy React Dashboard to EC2
+#         env:
+#           EC2_HOST: ${{ secrets.EC2_HOST }} # EC2 Host URL or IP address
+#           EC2_USER: ${{ secrets.EC2_USER }} # EC2 SSH username (e.g., ubuntu)
+#           ENV_VARS_JSON: ${{ secrets.ENV_VARS_JSON }} # Pass the environment variables JSON
+#         run: |
+#           # Create application directories on EC2 if they don't exist
+#           ssh $EC2_USER@$EC2_HOST "mkdir -p ~/applications/dashboard"
+
+#           # Copy the react project to EC2 using `rsync`
+#           rsync -avz \
+#             --exclude='.git' \
+#             --exclude='node_modules' \
+#             --exclude='.github' \
+#             . $EC2_USER@$EC2_HOST:~/applications/dashboard/  # Deploy only the dashboard files
+
+#           # Install production dependencies on EC2 for the dashboard
+#           ssh $EC2_USER@$EC2_HOST "cd ~/applications/dashboard && npm install --frozen-lockfile --production"
+
+#           # Set the environment variables (using the ENV_VARS_JSON secret)
+#           ssh $EC2_USER@$EC2_HOST "echo '$ENV_VARS_JSON' > ~/applications/dashboard/.env"
+
+#           # Step 3: Ensure Nginx is configured to serve the React app
+#           ssh $EC2_USER@$EC2_HOST "echo '
+#           server {
+#              listen 80;
+#              server_name 51.21.16.62;  # Use EC2's public IP here
+#              location / {
+#                 root /home/ubuntu/applications/dashboard;  # Path to React build folder
+#                 try_files \$uri /index.html;  # Ensure React Router works for SPA
+#                 index index.html;
+#              }
+#              error_page 404 /404.html;
+#              location = /404.html {
+#                 root /var/www/errors;
+#              }
+
+#             access_log /var/log/nginx/react_dashboard_access.log;
+#             error_log /var/log/nginx/react_dashboard_error.log;
+#           }
+#           ' | sudo tee /etc/nginx/sites-available/react_dashboard"
+
+#           # Step 4: Enable the site and restart Nginx
+#           ssh $EC2_USER@$EC2_HOST "sudo ln -s /etc/nginx/sites-available/react_dashboard /etc/nginx/sites-enabled/"
+#           ssh $EC2_USER@$EC2_HOST "sudo systemctl restart nginx"  # Restart Nginx to apply changes
+
 name: Deploy React Dashboard to EC2
 
 on:
@@ -64,9 +154,9 @@ jobs:
           # Set the environment variables (using the ENV_VARS_JSON secret)
           ssh $EC2_USER@$EC2_HOST "echo '$ENV_VARS_JSON' > ~/applications/dashboard/.env"
 
-          # Ensure Nginx is configured to serve the React app using a heredoc
+          # Step: Use `cat` to create the Nginx configuration
           ssh $EC2_USER@$EC2_HOST << 'EOF'
-          echo '
+          cat << NGINX_CONFIG > /etc/nginx/sites-available/react_dashboard
           server {
              listen 80;
              server_name 51.21.16.62;  # Use EC2's public IP here 
@@ -83,7 +173,7 @@ jobs:
              access_log /var/log/nginx/react_dashboard_access.log;
              error_log /var/log/nginx/react_dashboard_error.log;
           }
-          ' | sudo tee /etc/nginx/sites-available/react_dashboard > /dev/null
+          NGINX_CONFIG
           EOF
 
           # Step 4: Enable the site and restart Nginx
