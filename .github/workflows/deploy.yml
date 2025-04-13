@@ -180,10 +180,14 @@ jobs:
       - name: Build React Project
         run: npm run build
 
+      # Debug step to list files after build
+      - name: List files after build
+        run: ls -alh build
+
   deploy:
     runs-on: ubuntu-latest
 
-    needs: build
+    needs: build # This ensures the 'build' job must complete before this one starts
 
     steps:
       - name: Checkout the repository again (for deployment)
@@ -198,49 +202,16 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy React Dashboard to EC2 and Build on EC2
+      - name: Deploy React Dashboard to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          ENV_VARS_JSON: ${{ secrets.ENV_VARS_JSON }}
         run: |
-          # Create application directories on EC2 if they don't exist
+          # Ensure the application directory exists on EC2
           ssh $EC2_USER@$EC2_HOST "mkdir -p ~/applications/dashboard"
 
-          # Copy the react project files (excluding node_modules, .git, etc.)
-          rsync -avz --exclude='.git' --exclude='node_modules' --exclude='.github' --exclude='build' . $EC2_USER@$EC2_HOST:~/applications/dashboard/
+          # Rsync the build folder to EC2, excluding unnecessary files
+          rsync -avz build/ $EC2_USER@$EC2_HOST:/var/www/html/
 
-          # Install dependencies and build the app on the EC2 instance
-          ssh $EC2_USER@$EC2_HOST "cd ~/applications/dashboard && npm install --frozen-lockfile && npm run build"
-
-          # Set the environment variables (optional step)
-          ssh $EC2_USER@$EC2_HOST "echo '$ENV_VARS_JSON' > ~/applications/dashboard/.env"
-
-          # Now, copy the build directory to the Nginx root directory
-          rsync -avz ~/applications/dashboard/build/* $EC2_USER@$EC2_HOST:/var/www/html/
-
-          # Step 3: Configure Nginx to serve the React app
-          ssh $EC2_USER@$EC2_HOST "echo '
-          server {
-              listen 80;
-              server_name 51.21.16.62;  # Replace with your actual EC2 public IP or domain name
-
-              location / {
-                  root /var/www/html;  # Path where the React app build is deployed
-                  try_files \$uri /index.html;  # Handle SPA routing
-                  index index.html;
-              }
-
-              error_page 404 /404.html;
-              location = /404.html {
-                  root /var/www/errors;
-              }
-
-              access_log /var/log/nginx/react_dashboard_access.log;
-              error_log /var/log/nginx/react_dashboard_error.log;
-          }
-          ' | sudo tee /etc/nginx/sites-available/react_dashboard"
-
-          # Enable the site and restart Nginx
-          ssh $EC2_USER@$EC2_HOST "sudo ln -s /etc/nginx/sites-available/react_dashboard /etc/nginx/sites-enabled/"
+          # Optional: Restart Nginx to apply changes
           ssh $EC2_USER@$EC2_HOST "sudo systemctl restart nginx"
