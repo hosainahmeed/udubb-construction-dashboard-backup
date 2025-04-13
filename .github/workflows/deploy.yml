@@ -3,7 +3,7 @@ name: Deploy React Dashboard to EC2
 on:
   push:
     branches:
-      - "main" # Trigger deployment on push to main branch
+      - "deployment" # Trigger deployment on push to main branch
 
 jobs:
   build:
