@@ -1,94 +1,3 @@
-# name: Deploy React Dashboard to EC2
-
-# on:
-#   push:
-#     branches:
-#       - "deployment" # Trigger deployment on push to main branch
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest # This will run on a fresh Ubuntu instance
-
-#     steps:
-#       - name: Checkout the repository
-#         uses: actions/checkout@v3 # Checkout the code from your repository
-
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: "20.15" # Use the specified Node.js version
-
-#       - name: Install Dependencies
-#         run: npm install --frozen-lockfile # Install dependencies using package-lock.json
-
-#       - name: Build React Project
-#         run: npm run build # Build the React app to generate static files in the 'build' folder
-
-#   deploy:
-#     runs-on: ubuntu-latest # Runs deployment on Ubuntu
-
-#     needs: build # This job will depend on the successful completion of the 'build' job
-
-#     steps:
-#       - name: Checkout the repository again (for deployment)
-#         uses: actions/checkout@v3 # Checkout the code again for deployment purposes
-
-#       - name: Set up SSH to EC2
-#         env:
-#           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }} # SSH private key stored in GitHub Secrets
-#         run: |
-#           mkdir -p ~/.ssh  # Create the .ssh directory
-#           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa  # Add the private SSH key
-#           chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the private key
-#           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts  # Add EC2 to known hosts
-
-#       - name: Set up environment variables on EC2 (from JSON)
-#         env:
-#           ENV_VARS_JSON: ${{ secrets.ENV_VARS_JSON }} # JSON string containing environment variables
-#         run: |
-#           # Convert the ENV_VARS_JSON secret into individual environment variables
-#           echo "$ENV_VARS_JSON" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > /home/ubuntu/applications/dashboard/.env
-
-#           # Verify the .env file is created with the expected variables
-#           cat /home/ubuntu/applications/dashboard/.env
-
-#       - name: Deploy React Dashboard to EC2
-#         env:
-#           EC2_HOST: ${{ secrets.EC2_HOST }} # EC2 host (IP or domain)
-#           EC2_USER: ${{ secrets.EC2_USER }} # EC2 SSH username (e.g., ubuntu)
-#         run: |
-#           # Step 1: Copy the React build files to EC2
-#           rsync -avz ./build/ $EC2_USER@$EC2_HOST:/home/ubuntu/applications/dashboard/  # Deploy to /dashboard
-
-#           # Step 2: Set the correct permissions for Nginx to read the build files
-#           ssh $EC2_USER@$EC2_HOST "sudo chown -R www-data:www-data /home/ubuntu/applications/dashboard/"
-
-#           # Step 3: Ensure Nginx is configured to serve the React app
-#           ssh $EC2_USER@$EC2_HOST "echo '
-#           server {
-#              listen 80;
-#              server_name $EC2_HOST;  # Use EC2's public IP here (or domain when available)
-
-#              location / {
-#                 root /home/ubuntu/applications/dashboard;  # Path to React build folder
-#                 try_files \$uri /index.html;  # Ensure React Router works for SPA
-#                 index index.html;
-#              }
-
-#              error_page 404 /404.html;
-#              location = /404.html {
-#                 root /var/www/errors;
-#              }
-
-#             access_log /var/log/nginx/react_dashboard_access.log;
-#             error_log /var/log/nginx/react_dashboard_error.log;
-#             }
-#             ' | sudo tee /etc/nginx/sites-available/react_dashboard"
-
-#             # Step 4: Enable the site and restart Nginx
-#             ssh $EC2_USER@$EC2_HOST "sudo ln -s /etc/nginx/sites-available/react_dashboard /etc/nginx/sites-enabled/"
-#             ssh $EC2_USER@$EC2_HOST "sudo systemctl restart nginx"  # Restart Nginx to apply changes
-
 name: Deploy React Dashboard to EC2
 
 on:
@@ -160,7 +69,7 @@ jobs:
           ssh $EC2_USER@$EC2_HOST "echo '
           server {
              listen 80;
-             server_name $EC2_HOST;  # Use EC2's public IP here (or domain when available)
+             server_name 51.21.16.62;  # Use EC2's public IP here (or domain when available)
 
              location / {
                 root /home/ubuntu/applications/dashboard;  # Path to React build folder
