@@ -180,6 +180,10 @@ jobs:
       - name: Build React Project
         run: npm run build
 
+      # Debug step to list files after build
+      - name: List files in the repository
+        run: ls -alh
+
   deploy:
     runs-on: ubuntu-latest
 
