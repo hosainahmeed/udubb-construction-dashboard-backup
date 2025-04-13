@@ -9,7 +9,7 @@ import PageHeading from '../../Components/Shared/PageHeading';
 function AllDocuments() {
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState(1);
-  const [expandedItems, setExpandedItems] = useState({}); // Track expanded state by document ID
+  const [expandedItems, setExpandedItems] = useState({});
 
   const { data: documentData, isLoading: documentDataLoading } =
     useProjectsDocumentQuery({
@@ -22,7 +22,6 @@ function AllDocuments() {
     setCurrentPage(page);
   };
 
-  // Toggle description expansion for a specific document
   const toggleDescription = (documentId) => {
     setExpandedItems((prev) => ({
       ...prev,
@@ -37,7 +36,7 @@ function AllDocuments() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">
             <MdOutlineDocumentScanner className="inline-block mr-2" />
-            Project Documents
+            All Project Documents
           </h2>
         </div>
 

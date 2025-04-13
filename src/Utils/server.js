@@ -1,4 +1,5 @@
-export const url = `http://10.0.60.137:5000`;
+export const url = `${import.meta.env.VITE_URL}`;
+console.log(url);
 export const imageUrl = (image) => {
   return image
     ? image?.startsWith(`http`)
