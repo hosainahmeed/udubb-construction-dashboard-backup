@@ -133,19 +133,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the private key
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts  # Add EC2 to known hosts
 
-      - name: Set up environment variables on EC2 (from JSON)
-        env:
-          ENV_VARS_JSON: ${{ secrets.ENV_VARS_JSON }} # JSON string containing environment variables
-        run: |
-          # Ensure the necessary directory structure exists
-          ssh $EC2_USER@$EC2_HOST "mkdir -p /home/ubuntu/applications/dashboard"  # Create the folder if it doesn't exist
-
-          # Convert the ENV_VARS_JSON secret into individual environment variables
-          echo "$ENV_VARS_JSON" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > /home/ubuntu/applications/dashboard/.env
-
-          # Verify the .env file is created with the expected variables
-          ssh $EC2_USER@$EC2_HOST "cat /home/ubuntu/applications/dashboard/.env"
-
       - name: Deploy React Dashboard to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }} # EC2 host (IP or domain)
