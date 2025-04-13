@@ -64,9 +64,8 @@ jobs:
           # Set the environment variables (using the ENV_VARS_JSON secret)
           ssh $EC2_USER@$EC2_HOST "echo '$ENV_VARS_JSON' > ~/applications/dashboard/.env"
 
-
-          # Step 3: Ensure Nginx is configured to serve the React app
-          ssh $EC2_USER@$EC2_HOST "echo '
+          # Ensure Nginx is configured to serve the React app
+          ssh $EC2_USER@$EC2_HOST "echo \'
           server {
              listen 80;
              server_name 51.21.16.62;  # Use EC2's public IP here 
@@ -80,10 +79,10 @@ jobs:
                 root /var/www/errors;
              }
 
-            access_log /var/log/nginx/react_dashboard_access.log;
-            error_log /var/log/nginx/react_dashboard_error.log;
+             access_log /var/log/nginx/react_dashboard_access.log;
+             error_log /var/log/nginx/react_dashboard_error.log;
           }
-          ' | sudo tee /etc/nginx/sites-available/react_dashboard"
+          \' | sudo tee /etc/nginx/sites-available/react_dashboard"
 
           # Step 4: Enable the site and restart Nginx
           ssh $EC2_USER@$EC2_HOST "sudo ln -s /etc/nginx/sites-available/react_dashboard /etc/nginx/sites-enabled/"
