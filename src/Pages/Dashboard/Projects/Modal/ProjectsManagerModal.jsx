@@ -5,13 +5,17 @@ import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router';
 import { FaPlus } from 'react-icons/fa';
+import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
 const { Search } = Input;
 
 function ProjectsManagerModal({
-  setProjectManagerAssigned,
-  setProjectsManagerModal,
+  // setProjectManagerAssigned,
+  // setProjectsManagerModal,
+  // projectManagerAssigned,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const { projectManagerAssigned, setProjectManagerAssigned } =
+    useProjectsCreate();
   const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'manager',
     searchTerm: searchTerm,
@@ -28,12 +32,23 @@ function ProjectsManagerModal({
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
+  // const handleAssign = (user) => {
+  //   setProjectManagerAssigned(user?._id);
+  //   localStorage.setItem('projectManager', user?._id);
+  //   refetch();
+  //   toast.success('Manager assigned successfully');
+  //   setProjectsManagerModal(false);
+  // };
   const handleAssign = (user) => {
-    setProjectManagerAssigned(user?._id);
-    localStorage.setItem('projectManager', user?._id);
-    refetch();
-    toast.success('Manager assigned successfully');
-    setProjectsManagerModal(false);
+    setProjectManagerAssigned([...projectManagerAssigned, user?._id]);
+    // const prevProjectOwner = localStorage.getItem('projectOwner');
+    // const newProjectOwner = JSON.parse(prevProjectOwner) || [];
+    // localStorage.setItem(
+    //   'projectOwner',
+    //   JSON.stringify([...newProjectOwner, user?._id])
+    // );
+    // refetch();
+    toast.success('Project owner assigned!');
   };
 
   return (

@@ -5,16 +5,22 @@ import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import { FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router';
 import toast from 'react-hot-toast';
+import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
 const { Search } = Input;
 
-function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
+function OfficeManager({
+  // setOfficeManagerAssigned,
+  setOfficeManagerModal,
+  // officeManagerAssigned,
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'officeManager',
     searchTerm: searchTerm,
     limit: 999,
   });
-
+  const { officeManagerAssigned, setOfficeManagerAssigned } =
+    useProjectsCreate();
   const onSearch = (value) => {
     setSearchTerm(value);
   };
@@ -25,14 +31,24 @@ function OfficeManager({ setOfficeManagerAssigned, setOfficeManagerModal }) {
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
+  // const handleAssign = (user) => {
+  //   setOfficeManagerAssigned(user?._id);
+  //   localStorage.setItem('officeManager', user?._id);
+  //   refetch();
+  //   toast.success('Office manager assigned.');
+  //   setOfficeManagerModal(false);
+  // };
   const handleAssign = (user) => {
-    setOfficeManagerAssigned(user?._id);
-    localStorage.setItem('officeManager', user?._id);
-    refetch();
-    toast.success('Office manager assigned.');
-    setOfficeManagerModal(false);
+    setOfficeManagerAssigned([...officeManagerAssigned, user?._id]);
+    // const prevProjectOwner = localStorage.getItem('projectOwner');
+    // const newProjectOwner = JSON.parse(prevProjectOwner) || [];
+    // localStorage.setItem(
+    //   'projectOwner',
+    //   JSON.stringify([...newProjectOwner, user?._id])
+    // );
+    // refetch();
+    toast.success('Project owner assigned!');
   };
-
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
       <div className="w-full flex flex-col items-start">

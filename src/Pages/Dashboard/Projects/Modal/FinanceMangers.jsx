@@ -5,15 +5,23 @@ import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import { FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router';
 import toast from 'react-hot-toast';
+import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
 const { Search } = Input;
 
-function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
+function FinanceMangers({
+  // setFinanceManagerAssigned,
+  setFinanceManagerModal,
+  // financeManagerAssigned,
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'financeManager',
     searchTerm: searchTerm,
     limit: 999,
   });
+
+  const { financeManagerAssigned, setFinanceManagerAssigned } =
+    useProjectsCreate();
 
   const onSearch = (value) => {
     setSearchTerm(value);
@@ -25,12 +33,24 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
+  // const handleAssign = (user) => {
+  //   setFinanceManagerAssigned(user?._id);
+  //   localStorage.setItem('financeManager', user?._id);
+  //   refetch();
+  //   toast.success('Finance manager assigned.');
+  //   setFinanceManagerModal(false);
+  // };
+
   const handleAssign = (user) => {
-    setFinanceManagerAssigned(user?._id);
-    localStorage.setItem('financeManager', user?._id);
-    refetch();
-    toast.success('Finance manager assigned.');
-    setFinanceManagerModal(false);
+    setFinanceManagerAssigned([...financeManagerAssigned, user?._id]);
+    // const prevProjectOwner = localStorage.getItem('projectOwner');
+    // const newProjectOwner = JSON.parse(prevProjectOwner) || [];
+    // localStorage.setItem(
+    //   'projectOwner',
+    //   JSON.stringify([...newProjectOwner, user?._id])
+    // );
+    // refetch();
+    toast.success('Finance manager assigned!');
   };
 
   return (

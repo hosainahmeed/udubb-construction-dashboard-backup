@@ -45,10 +45,10 @@ const CreateNewProject = () => {
   const [projectsManagerModal, setProjectsManagerModal] = useState(false);
   const [OfficeManagerModal, setOfficeManagerModal] = useState(false);
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
-  const [projectOwnerAssigned, setProjectOwnerAssigned] = useState(null);
-  const [projectManagerAssigned, setProjectManagerAssigned] = useState(null);
-  const [officeManagerAssigned, setOfficeManagerAssigned] = useState(false);
-  const [financeManagerAssigned, setFinanceManagerAssigned] = useState(false);
+  const [projectOwnerAssigned, setProjectOwnerAssigned] = useState([]);
+  const [projectManagerAssigned, setProjectManagerAssigned] = useState([]);
+  const [officeManagerAssigned, setOfficeManagerAssigned] = useState([]);
+  const [financeManagerAssigned, setFinanceManagerAssigned] = useState([]);
   const [createProject, { isLoading }] = useCreateProjectsMutation();
 
   const onFinish = async (values) => {
@@ -89,10 +89,10 @@ const CreateNewProject = () => {
         form.resetFields();
         setProjectImage(null);
         setProjectImageUrl('');
-        setProjectManagerAssigned(null);
-        setOfficeManagerAssigned(null);
-        setFinanceManagerAssigned(null);
-        setProjectOwnerAssigned(null);
+        setProjectManagerAssigned([]);
+        setOfficeManagerAssigned([]);
+        setFinanceManagerAssigned([]);
+        setProjectOwnerAssigned([]);
         localStorage.removeItem('financeManager');
         localStorage.removeItem('officeManager');
         localStorage.removeItem('projectManager');
@@ -150,20 +150,20 @@ const CreateNewProject = () => {
             project?.data?.financeManager || financeManagerAssigned,
         }}
       >
-        <div className="flex items-start gap-2">
-          <div className="flex-1">
-            <Card>
-              <Row gutter={24}>
-                <Col span={24}>
-                  <Form.Item
-                    name="projectImage"
-                    label={
-                      <Title level={4} className="text-gray-700 mb-2">
-                        Add Project Image
-                      </Title>
-                    }
-                  >
-                    <Card className="h-38 relative !border-2 !border-dashed !border-gray-300 flex items-center justify-center overflow-hidden">
+        <div className="grid grid-cols-1 gap-4">
+          <Card>
+            <div className="flex gap-3 items-center ">
+              <div className="flex-1">
+                <Form.Item
+                  name="projectImage"
+                  label={
+                    <Title level={4} className="text-gray-700 mb-2">
+                      Add Project Image
+                    </Title>
+                  }
+                >
+                  <div>
+                    <Card className="h-[300px] relative !border-2 !border-dashed !border-gray-300 flex items-center justify-center overflow-hidden">
                       {projectImageUrl ? (
                         <div className="w-full h-full relative">
                           <img
@@ -171,10 +171,11 @@ const CreateNewProject = () => {
                             alt="Project Preview"
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute w-full h-full pointer-events-none flex items-center justify-center bottom-2 !z-[888] right-2">
+                          <div className="absolute w-full h-1/2 transform -translate-y-1/2 pointer-events-none flex items-start justify-end bottom-2 !z-[888] right-2">
                             <Button
+                            shape='circle'
                               size="small"
-                              className="!pointer-events-auto !bg-red-500 !text-white"
+                              className="!pointer-events-auto !bg-white !text-black"
                               onClick={() => {
                                 setProjectImageUrl('');
                                 setProjectImage(null);
@@ -198,152 +199,158 @@ const CreateNewProject = () => {
                         </Upload>
                       )}
                     </Card>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-            <Card className="!mt-2">
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    name="projectOwnerEmail"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Owner Email
-                      </Title>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please enter project owner email',
-                      },
-                      {
-                        type: 'email',
-                        message: 'Please enter a valid email',
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="email"
-                      placeholder="Enter project owner email here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="projectName"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Name
-                      </Title>
-                    }
-                    rules={[
-                      { required: true, message: 'Please enter project name' },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Enter project name here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                  </div>
+                </Form.Item>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <Card className="!mt-2">
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="projectName"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Name
+                          </Title>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please enter project name',
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter project name here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="projectTitle"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Title
+                          </Title>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please enter project title',
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter project title here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-              <Row gutter={24}>
-                <Col span={24}>
-                  <Form.Item
-                    name="projectTitle"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Title
-                      </Title>
-                    }
-                    rules={[
-                      { required: true, message: 'Please enter project title' },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Enter project title here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="projectStartDate"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Start Date
+                          </Title>
+                        }
+                      >
+                        <DatePicker
+                          format="DD/MM/YYYY"
+                          placeholder="dd/mm/yyyy"
+                          className="w-full rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="liveStreamLink"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Live Stream Link
+                          </Title>
+                        }
+                      >
+                        <Input
+                          type="url"
+                          placeholder="link here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    name="projectStartDate"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Start Date
-                      </Title>
-                    }
-                  >
-                    <DatePicker
-                      format="DD/MM/YYYY"
-                      placeholder="dd/mm/yyyy"
-                      className="w-full rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="liveStreamLink"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Live Stream Link
-                      </Title>
-                    }
-                  >
-                    <Input
-                      type="url"
-                      placeholder="link here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                  <Row>
+                    <Col span={24} className="">
+                      <Form.Item>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
+                        >
+                          {isLoading ? (
+                            <span class="loader"></span>
+                          ) : (
+                            'Create Project'
+                          )}
+                        </Button>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Card>
+              </div>
+            </div>
+          </Card>
 
-              <Row>
-                <Col span={24} className="">
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
-                    >
-                      {isLoading ? (
-                        <span class="loader"></span>
-                      ) : (
-                        'Create Project'
-                      )}
-                    </Button>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </div>
-          <div className="flex-1">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <Card>
-              <ProjectsOwonerAssignComponent
-                setProjectsOwnerModal={setProjectsOwnerModal}
-              />
-              <ProjectsManagerAssignComponent
-                setProjectsManagerModal={setProjectsManagerModal}
-              />
-
-              <OfficeManagerAssignComponent
-                setOfficeManagerModal={setOfficeManagerModal}
-              />
-              <FinanceManagerAssignComponent
-                setFinanceManagerModal={setFinanceManagerModal}
-              />
+              <div className="max-h-[200px] overflow-y-scroll">
+                <ProjectsOwonerAssignComponent
+                  projectOwnerAssigned={projectOwnerAssigned}
+                  setProjectsOwnerModal={setProjectsOwnerModal}
+                />
+              </div>
+            </Card>
+            <Card>
+              <div className="max-h-[200px] overflow-y-scroll">
+                <ProjectsManagerAssignComponent
+                  setProjectsManagerModal={setProjectsManagerModal}
+                />
+              </div>
+            </Card>
+            <Card>
+              <div className="max-h-[200px] overflow-y-scroll">
+                <OfficeManagerAssignComponent
+                  setOfficeManagerModal={setOfficeManagerModal}
+                />
+              </div>
+            </Card>
+            <Card>
+              <div className="max-h-[200px] overflow-y-scroll">
+                <FinanceManagerAssignComponent
+                  setFinanceManagerModal={setFinanceManagerModal}
+                />
+              </div>
             </Card>
           </div>
         </div>
       </Form>
+      <Modal
+        open={projectsOwnerModal}
+        onCancel={() => setProjectsOwnerModal(false)}
+        footer={null}
+        width={800}
+      >
+        <ProjectsWoners
+          setProjectsOwnerModal={setProjectsOwnerModal}
+          projectOwnerAssigned={projectOwnerAssigned}
+          setProjectOwnerAssigned={setProjectOwnerAssigned}
+        />
+      </Modal>
       <Modal
         open={projectsManagerModal}
         onCancel={() => setProjectsManagerModal(false)}
@@ -351,6 +358,7 @@ const CreateNewProject = () => {
         width={800}
       >
         <ProjectsManagerModal
+          projectManagerAssigned={projectManagerAssigned}
           setProjectsManagerModal={setProjectsManagerModal}
           setProjectManagerAssigned={setProjectManagerAssigned}
         />
@@ -363,6 +371,7 @@ const CreateNewProject = () => {
       >
         <OfficeManager
           setOfficeManagerModal={setOfficeManagerModal}
+          officeManagerAssigned={officeManagerAssigned}
           setOfficeManagerAssigned={setOfficeManagerAssigned}
         />
       </Modal>
@@ -373,19 +382,9 @@ const CreateNewProject = () => {
         width={800}
       >
         <FinanceMangers
+          financeManagerAssigned={financeManagerAssigned}
           setFinanceManagerModal={setFinanceManagerModal}
           setFinanceManagerAssigned={setFinanceManagerAssigned}
-        />
-      </Modal>
-      <Modal
-        open={projectsOwnerModal}
-        onCancel={() => setProjectsOwnerModal(false)}
-        footer={null}
-        width={800}
-      >
-        <ProjectsWoners
-          setProjectsOwnerModal={setProjectsOwnerModal}
-          setProjectOwnerAssigned={setProjectOwnerAssigned}
         />
       </Modal>
     </div>
