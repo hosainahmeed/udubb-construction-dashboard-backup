@@ -83,7 +83,7 @@ const UserManage = () => {
               htmlType="submit"
               className="!bg-[#213555] !text-white !px-6 !py-5"
             >
-              {isCreating ? <span class="loader"></span> : 'Create'}
+              {isCreating ? <span className="loader"></span> : 'Create'}
             </Button>
           </Form.Item>
         </Form>

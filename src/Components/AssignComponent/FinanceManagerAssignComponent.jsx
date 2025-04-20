@@ -25,7 +25,7 @@ function FinanceManagerAssignComponent({
     limit: 999,
   });
 
-  const id = localStorage.getItem('financeManager');
+  // const id = localStorage.getItem('financeManager');
 
   // Filter finance managers based on financeManagerAssigned IDs
   const assignedFinanceManagers =
@@ -33,24 +33,24 @@ function FinanceManagerAssignComponent({
       financeManagerAssigned?.includes(manager._id)
     ) || [];
 
-  useEffect(() => {
-    if (financeManager) {
-      setSelectedFinanceManager(
-        Array.isArray(financeManager) ? financeManager : [financeManager]
-      );
-    }
-  }, [financeManager]);
+  // useEffect(() => {
+  //   if (financeManager) {
+  //     setSelectedFinanceManager(
+  //       Array.isArray(financeManager) ? financeManager : [financeManager]
+  //     );
+  //   }
+  // }, [financeManager]);
 
-  useEffect(() => {
-    if (id && FinanceManagerData?.data?.result) {
-      const filterData = FinanceManagerData.data.result.filter(
-        (item) => item._id === id
-      );
-      if (filterData.length > 0) {
-        setSelectedFinanceManager([filterData[0]]);
-      }
-    }
-  }, [id, FinanceManagerData]);
+  // useEffect(() => {
+  //   if (id && FinanceManagerData?.data?.result) {
+  //     const filterData = FinanceManagerData.data.result.filter(
+  //       (item) => item._id === id
+  //     );
+  //     if (filterData.length > 0) {
+  //       setSelectedFinanceManager([filterData[0]]);
+  //     }
+  //   }
+  // }, [id, FinanceManagerData]);
 
   const AssignLabel = selectedFinanceManager ? 'Change' : 'Assign';
 
@@ -75,10 +75,7 @@ function FinanceManagerAssignComponent({
             <Form.Item
               label={
                 <Title level={5} className="text-gray-700 mb-1">
-                  Finance Manager (
-                  {financeManagerAssigned.length +
-                    (selectedFinanceManager ? 1 : 0)}
-                  )
+                  Finance Manager
                 </Title>
               }
             >
@@ -99,7 +96,7 @@ function FinanceManagerAssignComponent({
 
         {/* Selected finance manager from localStorage */}
         {Array.isArray(selectedFinanceManager) &&
-          selectedFinanceManager.length > 0 && (
+          selectedFinanceManager?.length > 0 && (
             <div className="!mt-4">
               <Card>
                 {selectedFinanceManager.map((item, idx) => (

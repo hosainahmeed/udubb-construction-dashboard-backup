@@ -22,6 +22,7 @@ const Profile = () => {
       setImage(e.target.files[0]);
     }
   };
+  
 
   const data = {
     data: {

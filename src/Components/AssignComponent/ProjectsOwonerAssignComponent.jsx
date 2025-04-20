@@ -15,12 +15,8 @@ import { MdDelete } from 'react-icons/md';
 import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
 
 const { Title, Text } = Typography;
-const { Panel } = Collapse;
 
-function ProjectsOwonerAssignComponent({
-  setProjectsOwnerModal,
-  projectOwner,
-}) {
+function ProjectsOwonerAssignComponent({ setProjectsOwnerModal }) {
   const [selectedOwner, setSelectedOwner] = useState(null);
   const { projectOwnerAssigned, setProjectOwnerAssigned } = useProjectsCreate();
   const {
@@ -31,34 +27,10 @@ function ProjectsOwonerAssignComponent({
     role: 'user',
     limit: 999,
   });
-
-  const id = localStorage.getItem('projectOwner');
-  const projectId = id ? JSON.parse(id) : null;
-
-  // Filter users based on projectOwnerAssigned IDs
   const assignedOwners =
     OwnerData?.data?.result?.filter((user) =>
       projectOwnerAssigned?.includes(user._id)
     ) || [];
-
-  useEffect(() => {
-    if (projectOwner) {
-      setSelectedOwner(
-        Array.isArray(projectOwner) ? projectOwner : [projectOwner]
-      );
-    }
-  }, [projectOwner]);
-
-  useEffect(() => {
-    if (id && OwnerData?.data?.result) {
-      const filterData = OwnerData.data.result.filter(
-        (item) => item._id === id
-      );
-      if (filterData.length > 0) {
-        setSelectedOwner([filterData[0]]);
-      }
-    }
-  }, [id, OwnerData]);
 
   const Assign = selectedOwner ? 'Change' : 'Assign';
 
@@ -75,7 +47,7 @@ function ProjectsOwonerAssignComponent({
             <Form.Item
               label={
                 <Title level={5} className="text-gray-700 mb-1">
-                  Project Owner ({projectOwnerAssigned.length})
+                  Project Owner
                 </Title>
               }
             >

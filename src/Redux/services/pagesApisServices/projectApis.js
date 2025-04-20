@@ -18,13 +18,18 @@ export const projectApis = baseApis.injectEndpoints({
       providesTags: ['project'],
     }),
     createProjects: builder.mutation({
-      query: (data) => ({
-        url: '/project/create-project',
-        method: 'POST',
-        body: data,
-      }),
+      query: ({ data }) => {
+
+
+        return {
+          url: '/project/create-project',
+          method: 'POST',
+          body: data,
+        };
+      },
       invalidatesTags: ['project'],
     }),
+
     updateProject: builder.mutation({
       query: ({ id, data }) => ({
         url: `/project/update-project/${id}`,

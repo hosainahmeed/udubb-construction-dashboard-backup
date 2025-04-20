@@ -8,11 +8,7 @@ import { FaPlus } from 'react-icons/fa';
 import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
 const { Search } = Input;
 
-function ProjectsManagerModal({
-  // setProjectManagerAssigned,
-  // setProjectsManagerModal,
-  // projectManagerAssigned,
-}) {
+function ProjectsManagerModal() {
   const [searchTerm, setSearchTerm] = useState('');
   const { projectManagerAssigned, setProjectManagerAssigned } =
     useProjectsCreate();
@@ -27,28 +23,25 @@ function ProjectsManagerModal({
   };
 
   if (isLoading) {
-    return <span class="loader"></span>;
+    return <span className="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
-  // const handleAssign = (user) => {
-  //   setProjectManagerAssigned(user?._id);
-  //   localStorage.setItem('projectManager', user?._id);
-  //   refetch();
-  //   toast.success('Manager assigned successfully');
-  //   setProjectsManagerModal(false);
-  // };
   const handleAssign = (user) => {
+    // Check if user is already assigned
+    if (projectManagerAssigned.includes(user?._id)) {
+      toast.error('This manager is already assigned!');
+      return;
+    }
+
     setProjectManagerAssigned([...projectManagerAssigned, user?._id]);
-    // const prevProjectOwner = localStorage.getItem('projectOwner');
-    // const newProjectOwner = JSON.parse(prevProjectOwner) || [];
-    // localStorage.setItem(
-    //   'projectOwner',
-    //   JSON.stringify([...newProjectOwner, user?._id])
-    // );
-    // refetch();
-    toast.success('Project owner assigned!');
+    toast.success('Project manager assigned!');
+  };
+
+  // Function to check if a user is already assigned
+  const isUserAssigned = (userId) => {
+    return projectManagerAssigned.includes(userId);
   };
 
   return (
@@ -95,8 +88,9 @@ function ProjectsManagerModal({
               <Button
                 onClick={() => handleAssign(user)}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
+                disabled={isUserAssigned(user?._id)}
               >
-                Assign
+                {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
               </Button>
             </div>
           </Card>

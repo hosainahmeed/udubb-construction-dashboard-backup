@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Card, Empty, Input } from 'antd';
 import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices/userApis';
@@ -8,11 +8,7 @@ import { FaPlus } from 'react-icons/fa';
 import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
 const { Search } = Input;
 
-function ProjectsWoners({
-  // setProjectOwnerAssigned,
-  setProjectsOwnerModal,
-  // projectOwnerAssigned,
-}) {
+function ProjectsWoners({ setProjectsOwnerModal }) {
   const { projectOwnerAssigned, setProjectOwnerAssigned } = useProjectsCreate();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,22 +23,25 @@ function ProjectsWoners({
   };
 
   if (isLoading) {
-    return <span class="loader"></span>;
+    return <span className="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data?.data?.result?.length > 0;
 
   const handleAssign = (user) => {
-    setProjectOwnerAssigned([...projectOwnerAssigned, user?._id])
-    // setProjectOwnerAssigned([...projectOwnerAssigned, user?._id]);
-    // const prevProjectOwner = localStorage.getItem('projectOwner');
-    // const newProjectOwner = JSON.parse(prevProjectOwner) || [];
-    // localStorage.setItem(
-    //   'projectOwner',
-    //   JSON.stringify([...newProjectOwner, user?._id])
-    // );
-    // refetch();
+    // Check if user is already assigned
+    if (projectOwnerAssigned.includes(user?._id)) {
+      toast.error('This user is already assigned as a project owner!');
+      return;
+    }
+
+    setProjectOwnerAssigned([...projectOwnerAssigned, user?._id]);
     toast.success('Project owner assigned!');
+  };
+
+  // Function to check if a user is already assigned
+  const isUserAssigned = (userId) => {
+    return projectOwnerAssigned?.includes(userId);
   };
 
   return (
@@ -89,8 +88,9 @@ function ProjectsWoners({
               <Button
                 onClick={() => handleAssign(user)}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
+                disabled={isUserAssigned(user?._id)}
               >
-                Assign
+                {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
               </Button>
             </div>
           </Card>

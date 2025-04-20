@@ -12,6 +12,7 @@ import {
   message,
   Modal,
   Image,
+  Tag,
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
@@ -32,11 +33,21 @@ import FinanceManagerAssignComponent from '../../Components/AssignComponent/Fina
 import { useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import { FaRegEdit } from 'react-icons/fa';
-
+import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
 const { Title } = Typography;
 
 const EditProjects = () => {
   const location = useLocation();
+  const {
+    projectOwnerAssigned,
+    setProjectOwnerAssigned,
+    projectManagerAssigned,
+    setProjectManagerAssigned,
+    officeManagerAssigned,
+    setOfficeManagerAssigned,
+    financeManagerAssigned,
+    setFinanceManagerAssigned,
+  } = useProjectsCreate();
   const id = location?.state;
   const { data: projectData } = useGetSingleProjectQuery({ id: id });
   const project = projectData?.data;
@@ -47,10 +58,6 @@ const EditProjects = () => {
   const [projectsManagerModal, setProjectsManagerModal] = useState(false);
   const [OfficeManagerModal, setOfficeManagerModal] = useState(false);
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
-  const [projectOwnerAssigned, setProjectOwnerAssigned] = useState(null);
-  const [projectManagerAssigned, setProjectManagerAssigned] = useState(null);
-  const [officeManagerAssigned, setOfficeManagerAssigned] = useState(null);
-  const [financeManagerAssigned, setFinanceManagerAssigned] = useState(null);
   const [userData, setUserData] = useState({});
 
   const [updateProject, { isLoading: updateLoading }] =
@@ -69,24 +76,22 @@ const EditProjects = () => {
         setProjectImageUrl(project.projectImage);
       }
 
-      if (project.projectManager)
-        setProjectManagerAssigned(project.projectManager._id);
-      if (project.officeManager)
-        setOfficeManagerAssigned(project.officeManager._id);
-      if (project.financeManager)
-        setFinanceManagerAssigned(project.financeManager._id);
-      if (project.projectOwner)
-        setProjectOwnerAssigned(project.projectOwner._id);
+      if (project.projectManager) {
+        setProjectManagerAssigned(project.projectManager.map((pm) => pm._id));
+      }
+      if (project.officeManager) {
+        setOfficeManagerAssigned(project.officeManager.map((om) => om._id));
+      }
+      if (project.financeManager) {
+        setFinanceManagerAssigned(project.financeManager.map((fm) => fm._id));
+      }
+      if (project.projectOwner) {
+        setProjectOwnerAssigned(project.projectOwner.map((po) => po._id));
+      }
     }
   }, [project, form]);
 
   const onFinish = async (values) => {
-    const formData = new FormData();
-
-    if (projectImage) {
-      formData.append('project_images', projectImage);
-    }
-
     const dataPayload = {
       name: values.projectName,
       title: values.projectTitle,
@@ -100,19 +105,14 @@ const EditProjects = () => {
       projectOwner: projectOwnerAssigned,
     };
 
-    Object.entries(dataPayload).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(key, value);
-      }
-    });
-
+    const formData = new FormData();
+    if (projectImage) {
+      formData.append('project_images', projectImage);
+    }
+    formData.append('data', JSON.stringify(dataPayload));
     try {
       const response = await updateProject({ id, data: formData }).unwrap();
       if (response?.success) {
-        localStorage.removeItem('projectManager');
-        localStorage.removeItem('officeManager');
-        localStorage.removeItem('financeManager');
-        localStorage.removeItem('projectOwner');
         toast.success('Project updated successfully!');
       } else {
         toast.error(response?.message || 'Unknown error');
@@ -143,6 +143,14 @@ const EditProjects = () => {
     },
     onChange: handleProjectImageChange,
     showUploadList: false,
+  };
+
+  const renderManagerTags = (managers) => {
+    return managers?.map((manager) => (
+      <Tag key={manager._id} color="blue" className="mb-2">
+        {manager.name}
+      </Tag>
+    ));
   };
 
   return (
@@ -314,36 +322,47 @@ const EditProjects = () => {
                 <ProjectsOwonerAssignComponent
                   userData={userData}
                   setProjectsOwnerModal={setProjectsOwnerModal}
-                  projectOwner={project?.projectOwner}
+                  projectOwners={project?.projectOwner}
                 />
+                <div className="mt-2">
+                  {renderManagerTags(project?.projectOwner)}
+                </div>
               </div>
             </Card>
             <Card>
               <div className="h-[400px] overflow-y-scroll">
                 <ProjectsManagerAssignComponent
                   setProjectsManagerModal={setProjectsManagerModal}
-                  projectManager={project?.projectManager}
+                  projectManagers={project?.projectManager}
                 />
+                <div className="mt-2">
+                  {renderManagerTags(project?.projectManager)}
+                </div>
               </div>
             </Card>
             <Card>
               <div className="h-[400px] overflow-y-scroll">
                 <OfficeManagerAssignComponent
                   setOfficeManagerModal={setOfficeManagerModal}
-                  officeManager={project?.officeManager}
+                  officeManagers={project?.officeManager}
                 />
+                <div className="mt-2">
+                  {renderManagerTags(project?.officeManager)}
+                </div>
               </div>
             </Card>
             <Card>
               <div className="h-[400px] overflow-y-scroll">
                 <FinanceManagerAssignComponent
                   setFinanceManagerModal={setFinanceManagerModal}
-                  financeManager={project?.financeManager}
+                  financeManagers={project?.financeManager}
                 />
+                <div className="mt-2">
+                  {renderManagerTags(project?.financeManager)}
+                </div>
               </div>
             </Card>
           </div>
-          {/* Form Card - Fixed Height with Scroll */}
         </div>
       </Form>
       <Modal
@@ -355,6 +374,7 @@ const EditProjects = () => {
         <ProjectsManagerModal
           setProjectsManagerModal={setProjectsManagerModal}
           setProjectManagerAssigned={setProjectManagerAssigned}
+          currentManagers={projectManagerAssigned}
         />
       </Modal>
       <Modal
@@ -366,6 +386,7 @@ const EditProjects = () => {
         <OfficeManager
           setOfficeManagerModal={setOfficeManagerModal}
           setOfficeManagerAssigned={setOfficeManagerAssigned}
+          currentManagers={officeManagerAssigned}
         />
       </Modal>
       <Modal
@@ -377,6 +398,7 @@ const EditProjects = () => {
         <FinanceMangers
           setFinanceManagerModal={setFinanceManagerModal}
           setFinanceManagerAssigned={setFinanceManagerAssigned}
+          currentManagers={financeManagerAssigned}
         />
       </Modal>
       <Modal
@@ -389,6 +411,7 @@ const EditProjects = () => {
           setUserData={setUserData}
           setProjectsOwnerModal={setProjectsOwnerModal}
           setProjectOwnerAssigned={setProjectOwnerAssigned}
+          currentOwners={projectOwnerAssigned}
         />
       </Modal>
     </Card>

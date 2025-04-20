@@ -25,8 +25,8 @@ function ProjectsManagerAssignComponent({
     limit: 999,
   });
 
-  const id = localStorage.getItem('projectManager');
-  const projectId = id ? JSON.parse(id) : null;
+  // const id = localStorage.getItem('projectManager');
+  // const projectId = id ? JSON.parse(id) : null;
 
   // Filter managers based on projectManagerAssigned IDs
   const assignedManagers =
@@ -34,24 +34,24 @@ function ProjectsManagerAssignComponent({
       projectManagerAssigned?.includes(manager._id)
     ) || [];
 
-  useEffect(() => {
-    if (projectManager) {
-      setSelectedManager(
-        Array.isArray(projectManager) ? projectManager : [projectManager]
-      );
-    }
-  }, [projectManager]);
+  // useEffect(() => {
+  //   if (projectManager) {
+  //     setSelectedManager(
+  //       Array.isArray(projectManager) ? projectManager : [projectManager]
+  //     );
+  //   }
+  // }, [projectManager]);
 
-  useEffect(() => {
-    if (id && ManagerData?.data?.result) {
-      const filterData = ManagerData.data.result.filter(
-        (item) => item._id === id
-      );
-      if (filterData.length > 0) {
-        setSelectedManager([filterData[0]]);
-      }
-    }
-  }, [id, ManagerData]);
+  // useEffect(() => {
+  //   if (id && ManagerData?.data?.result) {
+  //     const filterData = ManagerData.data.result.filter(
+  //       (item) => item._id === id
+  //     );
+  //     if (filterData.length > 0) {
+  //       setSelectedManager([filterData[0]]);
+  //     }
+  //   }
+  // }, [id, ManagerData]);
 
   const Assign = selectedManager ? 'Change' : 'Assign';
 
@@ -69,7 +69,7 @@ function ProjectsManagerAssignComponent({
             <Form.Item
               label={
                 <Title level={5} className="text-gray-700 mb-1">
-                  Project Manager ({projectManagerAssigned.length})
+                  Project Manager
                 </Title>
               }
             >

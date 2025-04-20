@@ -8,11 +8,7 @@ import toast from 'react-hot-toast';
 import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
 const { Search } = Input;
 
-function FinanceMangers({
-  // setFinanceManagerAssigned,
-  setFinanceManagerModal,
-  // financeManagerAssigned,
-}) {
+function FinanceMangers({ setFinanceManagerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'financeManager',
@@ -28,29 +24,25 @@ function FinanceMangers({
   };
 
   if (isLoading) {
-    return <span class="loader"></span>;
+    return <span className="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
-  // const handleAssign = (user) => {
-  //   setFinanceManagerAssigned(user?._id);
-  //   localStorage.setItem('financeManager', user?._id);
-  //   refetch();
-  //   toast.success('Finance manager assigned.');
-  //   setFinanceManagerModal(false);
-  // };
-
   const handleAssign = (user) => {
+    // Check if user is already assigned
+    if (financeManagerAssigned.includes(user?._id)) {
+      toast.error('This finance manager is already assigned!');
+      return;
+    }
+
     setFinanceManagerAssigned([...financeManagerAssigned, user?._id]);
-    // const prevProjectOwner = localStorage.getItem('projectOwner');
-    // const newProjectOwner = JSON.parse(prevProjectOwner) || [];
-    // localStorage.setItem(
-    //   'projectOwner',
-    //   JSON.stringify([...newProjectOwner, user?._id])
-    // );
-    // refetch();
     toast.success('Finance manager assigned!');
+  };
+
+  // Function to check if a user is already assigned
+  const isUserAssigned = (userId) => {
+    return financeManagerAssigned.includes(userId);
   };
 
   return (
@@ -100,8 +92,9 @@ function FinanceMangers({
               <Button
                 onClick={() => handleAssign(user)}
                 className="!bg-[#213555] !text-white !px-6 !py-5"
+                disabled={isUserAssigned(user?._id)}
               >
-                Assign
+                {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
               </Button>
             </div>
           </Card>

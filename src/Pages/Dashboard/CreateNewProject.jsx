@@ -29,6 +29,7 @@ import OfficeManagerAssignComponent from '../../Components/AssignComponent/Offic
 import FinanceManagerAssignComponent from '../../Components/AssignComponent/FinanceManagerAssignComponent';
 import { useLocation } from 'react-router';
 import toast from 'react-hot-toast';
+import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
 
 const { Title, Text } = Typography;
 
@@ -45,45 +46,43 @@ const CreateNewProject = () => {
   const [projectsManagerModal, setProjectsManagerModal] = useState(false);
   const [OfficeManagerModal, setOfficeManagerModal] = useState(false);
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
-  const [projectOwnerAssigned, setProjectOwnerAssigned] = useState([]);
-  const [projectManagerAssigned, setProjectManagerAssigned] = useState([]);
-  const [officeManagerAssigned, setOfficeManagerAssigned] = useState([]);
-  const [financeManagerAssigned, setFinanceManagerAssigned] = useState([]);
+  const {
+    projectOwnerAssigned,
+    setProjectOwnerAssigned,
+    projectManagerAssigned,
+    setProjectManagerAssigned,
+    officeManagerAssigned,
+    setOfficeManagerAssigned,
+    financeManagerAssigned,
+    setFinanceManagerAssigned,
+  } = useProjectsCreate();
   const [createProject, { isLoading }] = useCreateProjectsMutation();
 
   const onFinish = async (values) => {
-    const formData = new FormData();
-
-    if (projectImage) {
-      formData.append('project_images', projectImage);
-    }
-
     const dataPayload = {
       name: values.projectName,
-      projectOwnerEmail: values.projectOwnerEmail,
       title: values.projectTitle,
       startDate: values.projectStartDate
         ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
         : new Date().toISOString(),
       liveLink: values.liveStreamLink,
-      projectManager:
-        projectManagerAssigned || localStorage.getItem('projectManager') || '',
-      officeManager:
-        officeManagerAssigned || localStorage.getItem('officeManager') || '',
-      financeManager:
-        financeManagerAssigned || localStorage.getItem('financeManager') || '',
-      projectOwner:
-        projectOwnerAssigned || localStorage.getItem('projectOwner') || '',
+      projectManager: projectManagerAssigned,
+      officeManager: officeManagerAssigned,
+      financeManager: financeManagerAssigned,
+      projectOwner: projectOwnerAssigned,
     };
-
-    Object.entries(dataPayload).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(key, value);
-      }
-    });
-
+    // Object.entries(dataPayload).forEach(([key, value]) => {
+    //   if (value !== null && value !== undefined) {
+    //     formData.append(key, value);
+    //   }
+    // });
+    const formData = new FormData();
+    if (projectImage) {
+      formData.append('project_images', projectImage);
+    }
+    formData.append('data', JSON.stringify(dataPayload));
     try {
-      const response = await createProject(formData).unwrap();
+      const response = await createProject({ data: formData }).unwrap();
       if (response?.success) {
         toast.success(response?.message || 'Project created successfully.');
         form.resetFields();
@@ -93,10 +92,6 @@ const CreateNewProject = () => {
         setOfficeManagerAssigned([]);
         setFinanceManagerAssigned([]);
         setProjectOwnerAssigned([]);
-        localStorage.removeItem('financeManager');
-        localStorage.removeItem('officeManager');
-        localStorage.removeItem('projectManager');
-        localStorage.removeItem('projectOwner');
         window.location.reload();
       } else {
         toast.error(response?.data?.message || 'Failed to create project.');
@@ -139,7 +134,6 @@ const CreateNewProject = () => {
         className="!mt-3 p-6"
         initialValues={{
           name: project?.data?.name || '',
-          projectOwnerEmail: project?.data?.projectOwnerEmail || '',
           title: project?.data?.title || '',
           startDate: project?.data?.startDate || '',
           liveLink: project?.data?.liveLink || '',
@@ -173,7 +167,7 @@ const CreateNewProject = () => {
                           />
                           <div className="absolute w-full h-1/2 transform -translate-y-1/2 pointer-events-none flex items-start justify-end bottom-2 !z-[888] right-2">
                             <Button
-                            shape='circle'
+                              shape="circle"
                               size="small"
                               className="!pointer-events-auto !bg-white !text-black"
                               onClick={() => {
@@ -293,7 +287,7 @@ const CreateNewProject = () => {
                           className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
                         >
                           {isLoading ? (
-                            <span class="loader"></span>
+                            <span className="loader"></span>
                           ) : (
                             'Create Project'
                           )}

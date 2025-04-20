@@ -25,7 +25,6 @@ function OfficeManagerAssignComponent({
   const [selectedOfficeManager, setSelectedOfficeManager] = useState([]);
   const { officeManagerAssigned, setOfficeManagerAssigned } =
     useProjectsCreate();
-  console.log(officeManagerAssigned);
   const {
     data: OfiiceManagerData,
     isLoading,
@@ -39,31 +38,30 @@ function OfficeManagerAssignComponent({
     OfiiceManagerData?.data?.result?.filter((manager) =>
       officeManagerAssigned?.includes(manager._id)
     ) || [];
-  const id = localStorage.getItem('officeManager');
+  // const id = localStorage.getItem('officeManager');
 
-  useEffect(() => {
-    if (officeManager) {
-      const dataToSet = Array.isArray(officeManager)
-        ? officeManager
-        : [officeManager];
-      setSelectedOfficeManager(dataToSet);
-    }
-  }, [officeManager]);
+  // useEffect(() => {
+  //   if (officeManager) {
+  //     const dataToSet = Array.isArray(officeManager)
+  //       ? officeManager
+  //       : [officeManager];
+  //     setSelectedOfficeManager(dataToSet);
+  //   }
+  // }, [officeManager]);
 
-  useEffect(() => {
-    if (id && OfiiceManagerData?.data?.result) {
-      const filterData = OfiiceManagerData.data.result.filter(
-        (item) => item._id === id
-      );
-      if (filterData.length > 0) {
-        setSelectedOfficeManager(filterData);
-      }
-    }
-  }, [id, OfiiceManagerData]);
+  // useEffect(() => {
+  //   if (id && OfiiceManagerData?.data?.result) {
+  //     const filterData = OfiiceManagerData.data.result.filter(
+  //       (item) => item._id === id
+  //     );
+  //     if (filterData.length > 0) {
+  //       setSelectedOfficeManager(filterData);
+  //     }
+  //   }
+  // }, [id, OfiiceManagerData]);
 
   const Assign = selectedOfficeManager.length > 0 ? 'Change' : 'Assign';
   const handleDelete = async (id) => {
-    console.log(id)
     const updatedList = officeManagerAssigned.filter((item) => item !== id);
     setOfficeManagerAssigned(updatedList);
     toast.success('Project Manager removed!');
@@ -77,7 +75,7 @@ function OfficeManagerAssignComponent({
             <Form.Item
               label={
                 <Title level={5} className="text-gray-700 mb-1">
-                  Office Manager ({officeManagerAssigned.length})
+                  Office Manager
                 </Title>
               }
             >
