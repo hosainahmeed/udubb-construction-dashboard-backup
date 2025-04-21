@@ -55,7 +55,6 @@ function ProjectDetails() {
     // Check if manager exists and has data
     const hasManager =
       manager && (manager?.name || manager?.email || manager?.phone);
-    console.log(manager?.profile_image);
     return (
       <Card className="hover:shadow-lg !border-gray-300 transition-all duration-300">
         <div className="text-center mb-4">

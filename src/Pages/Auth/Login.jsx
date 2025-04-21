@@ -24,9 +24,11 @@ const Login = () => {
         localStorage.setItem('accessToken', res?.data?.data?.accessToken);
         toast.success(res?.data?.message);
         route('/');
+      } else {
+        toast.error(res?.error?.data?.message);
       }
     } catch (error) {
-      console.error(error.data?.message);
+      console.error(error?.data?.message);
     }
   };
 

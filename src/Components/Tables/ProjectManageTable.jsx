@@ -14,7 +14,6 @@ const ProjectManageTable = () => {
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  console.log(data?.data?.result);
   const projectDataInformation =
     data?.data?.result?.map((project, index) => ({
       key: project._id,
