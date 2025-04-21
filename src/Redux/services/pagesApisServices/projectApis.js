@@ -19,8 +19,6 @@ export const projectApis = baseApis.injectEndpoints({
     }),
     createProjects: builder.mutation({
       query: ({ data }) => {
-
-
         return {
           url: '/project/create-project',
           method: 'POST',
@@ -38,6 +36,13 @@ export const projectApis = baseApis.injectEndpoints({
       }),
       invalidatesTags: ['project'],
     }),
+    getProjectsImags: builder.query({
+      query: ({ id }) => ({
+        url: `/project-image/get-project-images/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['project'],
+    }),
   }),
 });
 
@@ -46,4 +51,5 @@ export const {
   useGetSingleProjectQuery,
   useCreateProjectsMutation,
   useUpdateProjectMutation,
+  useGetProjectsImagsQuery,
 } = projectApis;
