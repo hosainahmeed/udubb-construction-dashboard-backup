@@ -25,7 +25,9 @@ const Login = () => {
         toast.success(res?.data?.message);
         route('/');
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error.data?.message);
+    }
   };
 
   return (
@@ -105,7 +107,11 @@ const Login = () => {
             className="w-full !bg-[#213555]"
             style={{ marginTop: 10 }}
           >
-            {isLoading ? <span className="loader"></span> : 'Continue with Email'}
+            {isLoading ? (
+              <span className="loader"></span>
+            ) : (
+              'Continue with Email'
+            )}
           </Button>
         </Form>
       </div>
