@@ -55,9 +55,9 @@ function ProjectDetails() {
     // Check if manager exists and has data
     const hasManager =
       manager && (manager?.name || manager?.email || manager?.phone);
-
+    console.log(manager?.profile_image);
     return (
-      <Card className="hover:shadow-lg transition-all duration-300">
+      <Card className="hover:shadow-lg !border-gray-300 transition-all duration-300">
         <div className="text-center mb-4">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">
             {managerType}
@@ -65,21 +65,19 @@ function ProjectDetails() {
           <div
             className={`mx-auto !w-24 !h-24 rounded-full overflow-hidden border-4 border-${borderColor}-100 mb-4`}
           >
-            {projectImages?.length > 0 ? (
-              projectImages.map((image) => (
-                <Image
-                  className="!w-full !h-full !object-cover"
-                  src={
-                    image?.image_url
-                      ? imageUrl(image?.image_url)
-                      : 'https://via.placeholder.com/150'
-                  }
-                  alt={projectData?.name}
-                />
-              ))
-            ) : (
-              <Empty description="No project image available" />
-            )}
+            <Image
+              className="!w-full !h-24 !object-cover"
+              src={
+                manager?.profile_image === undefined ||
+                manager?.profile_image === null ||
+                manager?.profile_image === ''
+                  ? 'https://placehold.co/400'
+                  : manager?.profile_image
+                  ? imageUrl(manager?.profile_image)
+                  : 'https://placehold.co/400'
+              }
+              alt={projectData?.name}
+            />
           </div>
           <h4 className="font-medium text-lg">
             {hasManager && manager?.name ? manager?.name : 'Not assigned'}
@@ -150,7 +148,7 @@ function ProjectDetails() {
       {/* NEW: Project Images Gallery Section */}
       <div className="mb-10">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">
+          <h2 className="text-xl font-semibold pb-2">
             <MdPhoto className="inline-block mr-2" />
             Project Gallery
           </h2>
@@ -203,7 +201,7 @@ function ProjectDetails() {
       {/* Project Documents Section */}
       <div className="mb-10">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">
+          <h2 className="text-xl font-semibold pb-2">
             <MdOutlineDocumentScanner className="inline-block mr-2" />
             Project Documents
           </h2>
@@ -230,7 +228,7 @@ function ProjectDetails() {
                   to={item?.document_url}
                   className="mb-3 hover:opacity-80 transition-opacity"
                 >
-                  <Card className="overflow-hidden !h-48 transition-all duration-300">
+                  <Card className="overflow-hidden !border-gray-300 !h-48 transition-all duration-300">
                     <div className="flex flex-col items-start">
                       <Image
                         preview={false}
@@ -267,55 +265,43 @@ function ProjectDetails() {
 
       {/* Project Details Section */}
       <div className="mb-10">
-        <h2 className="text-xl font-semibold mb-6 text-gray-700 border-b pb-2">
+        <h2 className="text-xl font-semibold mb-6 pb-2">
           <MdPerson className="inline-block mr-2" />
           Project Information
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-blue-50 rounded-lg p-5 shadow-sm">
-            <div className="flex items-center mb-2">
-              <MdEmail className="text-blue-600 mr-2 text-xl" />
-              <h3 className="text-lg font-medium text-gray-700">
-                Project Owner Email
-              </h3>
-            </div>
-            <p className="bg-white rounded-lg p-3 border border-blue-100">
-              {projectData?.projectOwnerEmail || 'Not available'}
-            </p>
-          </div>
-
-          <div className="bg-purple-50 rounded-lg p-5 shadow-sm">
+        <div className="grid grid-cols-1 !mt-12 md:grid-cols-2 gap-6">
+          <Card className="border !border-gray-300">
             <div className="flex items-center mb-2">
               <MdPerson className="text-purple-600 mr-2 text-xl" />
               <h3 className="text-lg font-medium text-gray-700">
                 Project Name
               </h3>
             </div>
-            <p className="bg-white rounded-lg p-3 border border-purple-100">
+            <p className="bg-white rounded-lg p-3 border !border-gray-300">
               {projectData?.name || 'Not available'}
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-green-50 rounded-lg p-5 shadow-sm col-span-1 md:col-span-2">
+          <Card className="border !border-gray-300">
             <div className="flex items-center mb-2">
               <MdOutlineDocumentScanner className="text-green-600 mr-2 text-xl" />
               <h3 className="text-lg font-medium text-gray-700">
                 Project Title
               </h3>
             </div>
-            <p className="bg-white rounded-lg p-3 border border-green-100">
+            <p className="bg-white rounded-lg p-3 border !border-gray-300">
               {projectData?.title || 'Not available'}
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-amber-50 rounded-lg p-5 shadow-sm">
+          <Card className="border !border-gray-300">
             <div className="flex items-center mb-2">
               <MdDateRange className="text-amber-600 mr-2 text-xl" />
               <h3 className="text-lg font-medium text-gray-700">
                 Project Start Date
               </h3>
             </div>
-            <p className="bg-white rounded-lg p-3 border border-amber-100">
+            <p className="bg-white rounded-lg p-3 border !border-gray-300">
               {projectData?.startDate
                 ? new Date(projectData.startDate).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -324,16 +310,16 @@ function ProjectDetails() {
                   })
                 : 'Not available'}
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-indigo-50 rounded-lg p-5 shadow-sm">
+          <Card className="border !border-gray-300">
             <div className="flex items-center mb-2">
               <MdLink className="text-indigo-600 mr-2 text-xl" />
               <h3 className="text-lg font-medium text-gray-700">
                 Project Stream Link
               </h3>
             </div>
-            <p className="bg-white rounded-lg p-3 border border-indigo-100">
+            <p className="bg-white rounded-lg p-3 border !border-gray-300">
               {projectData?.liveLink ? (
                 <a
                   href={projectData.liveLink}
@@ -347,18 +333,25 @@ function ProjectDetails() {
                 'No link available'
               )}
             </p>
-          </div>
+          </Card>
         </div>
       </div>
 
       {/* Project Team Section */}
       <div>
-        <h2 className="text-xl font-semibold mb-6 text-gray-700 border-b pb-2">
+        <h2 className="text-xl font-semibold mb-6 pb-2">
           <FaUserTie className="inline-block mr-2" />
           Project Team
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Project Manager */}
+          {renderManagerCard(
+            'Project Owner',
+            projectData?.projectOwner?.[0] || null,
+            'red',
+            'red'
+          )}
+
           {renderManagerCard(
             'Project Manager',
             projectData?.projectManager?.[0] || null,

@@ -29,10 +29,6 @@ function AllImages() {
       limit: 9,
     });
 
-  const handlePaginationChange = (page) => {
-    setCurrentPage(page);
-  };
-
   const openModal = (image) => {
     setSelectedImage(image);
     setModalVisible(true);
@@ -41,14 +37,6 @@ function AllImages() {
   const closeModal = () => {
     setModalVisible(false);
     setSelectedImage(null);
-  };
-
-  // Function to truncate text to a specified length
-  const truncateText = (text, maxLength = 100) => {
-    if (!text) return '';
-    return text.length > maxLength
-      ? text.substring(0, maxLength) + '...'
-      : text;
   };
 
   return (
@@ -69,11 +57,11 @@ function AllImages() {
         ) : (
           <div>
             {projectImags?.data?.result?.length > 0 ? (
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-3 gap-6">
                 {projectImags?.data?.result?.map((item) => (
                   <Card
                     key={item?._id}
-                    className="overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl"
+                    className="overflow-hidden shadow-sm transition-all duration-300"
                     bodyStyle={{ padding: '16px' }}
                   >
                     <Row gutter={16} align="middle">
@@ -98,7 +86,7 @@ function AllImages() {
                             {item?.title || 'Untitled Image'}
                           </h3>
                           <p className="text-gray-600 mb-4">
-                            {truncateText(item?.description, 120)}
+                            {item?.description?.slice(1, 50)}...
                           </p>
                           <Button
                             type="primary"
@@ -127,9 +115,9 @@ function AllImages() {
               <div className="flex justify-center mt-8">
                 <Pagination
                   current={currentPage}
-                  pageSize={9}
+                  pageSize={projectImags?.data?.meta?.limit}
                   total={projectImags?.data?.meta?.total}
-                  onChange={handlePaginationChange}
+                  onChange={(page) => setCurrentPage(page)}
                   showSizeChanger={false}
                 />
               </div>

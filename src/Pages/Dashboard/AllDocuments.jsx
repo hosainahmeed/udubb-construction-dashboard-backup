@@ -39,12 +39,6 @@ function AllDocuments() {
     setCurrentPage(page);
   };
 
-  const toggleDescription = (documentId) => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [documentId]: !prev[documentId],
-    }));
-  };
 
   const openModal = (document) => {
     setSelectedDocument(document);
@@ -54,14 +48,6 @@ function AllDocuments() {
   const closeModal = () => {
     setModalVisible(false);
     setSelectedDocument(null);
-  };
-
-  // Function to truncate text to a specified length
-  const truncateText = (text, maxLength = 100) => {
-    if (!text) return '';
-    return text.length > maxLength
-      ? text.substring(0, maxLength) + '...'
-      : text;
   };
 
   return (

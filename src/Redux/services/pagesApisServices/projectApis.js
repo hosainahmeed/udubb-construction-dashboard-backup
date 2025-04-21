@@ -37,9 +37,10 @@ export const projectApis = baseApis.injectEndpoints({
       invalidatesTags: ['project'],
     }),
     getProjectsImags: builder.query({
-      query: ({ id }) => ({
+      query: ({ id, page, limit }) => ({
         url: `/project-image/get-project-images/${id}`,
         method: 'GET',
+        params: { page, limit },
       }),
       providesTags: ['project'],
     }),
