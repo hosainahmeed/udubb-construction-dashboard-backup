@@ -6,6 +6,7 @@ import { FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router';
 import toast from 'react-hot-toast';
 import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
+import { MdDelete } from 'react-icons/md';
 const { Search } = Input;
 
 function OfficeManager({ setOfficeManagerModal }) {
@@ -42,6 +43,12 @@ function OfficeManager({ setOfficeManagerModal }) {
   // Function to check if a user is already assigned
   const isUserAssigned = (userId) => {
     return officeManagerAssigned.includes(userId);
+  };
+
+  const handleDelete = async (id) => {
+    const updatedList = officeManagerAssigned.filter((item) => item !== id);
+    setOfficeManagerAssigned(updatedList);
+    toast.success('Project Manager removed!');
   };
 
   return (
@@ -86,13 +93,24 @@ function OfficeManager({ setOfficeManagerModal }) {
                 }
               />
 
-              <Button
-                onClick={() => handleAssign(user)}
-                className="!bg-[#213555] !text-white !px-6 !py-5"
-                disabled={isUserAssigned(user?._id)}
-              >
-                {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
-              </Button>
+              <div className="flex items-center gap-2">
+                {isUserAssigned(user?._id) && (
+                  <Button
+                    shape="circle"
+                    onClick={() => handleDelete(user._id)}
+                    className="!bg-white !text-black w-fit px-2 py-1 rounded"
+                  >
+                    <MdDelete />
+                  </Button>
+                )}
+                <Button
+                  onClick={() => handleAssign(user)}
+                  className="!bg-[#213555] !text-white !px-6 !py-5"
+                  disabled={isUserAssigned(user?._id)}
+                >
+                  {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
+                </Button>
+              </div>
             </div>
           </Card>
         ))
