@@ -11,6 +11,7 @@ import {
   Typography,
   message,
   Modal,
+  Select,
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
@@ -30,6 +31,8 @@ import FinanceManagerAssignComponent from '../../Components/AssignComponent/Fina
 import { useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
+import { useGetAllSmartShitQuery } from '../../Redux/services/pagesApisServices/smartShitApis';
+import moment from 'moment'; // Import moment for date handling
 
 const { Title, Text } = Typography;
 
@@ -46,6 +49,8 @@ const CreateNewProject = () => {
   const [projectsManagerModal, setProjectsManagerModal] = useState(false);
   const [OfficeManagerModal, setOfficeManagerModal] = useState(false);
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
+  const { data: smartShit, isLoading: smartShitLoading } =
+    useGetAllSmartShitQuery();
   const {
     projectOwnerAssigned,
     setProjectOwnerAssigned,
@@ -59,29 +64,46 @@ const CreateNewProject = () => {
   const [createProject, { isLoading }] = useCreateProjectsMutation();
 
   const onFinish = async (values) => {
-    const dataPayload = {
-      name: values.projectName,
-      title: values.projectTitle,
-      startDate: values.projectStartDate
-        ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
-        : new Date().toISOString(),
-      liveLink: values.liveStreamLink,
-      projectManager: projectManagerAssigned,
-      officeManager: officeManagerAssigned,
-      financeManager: financeManagerAssigned,
-      projectOwner: projectOwnerAssigned,
-    };
-    // Object.entries(dataPayload).forEach(([key, value]) => {
-    //   if (value !== null && value !== undefined) {
-    //     formData.append(key, value);
-    //   }
-    // });
-    const formData = new FormData();
-    if (projectImage) {
-      formData.append('project_images', projectImage);
-    }
-    formData.append('data', JSON.stringify(dataPayload));
     try {
+      // Handle the date formatting safely
+      let formattedDate;
+      if (values.projectStartDate) {
+        // Check if it's a moment object
+        if (
+          values.projectStartDate &&
+          typeof values.projectStartDate.format === 'function'
+        ) {
+          formattedDate = values.projectStartDate.format(
+            'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
+          );
+        } else {
+          // If not a moment object, create a new date
+          formattedDate = new Date(values.projectStartDate).toISOString();
+        }
+      } else {
+        formattedDate = new Date().toISOString();
+      }
+
+      const dataPayload = {
+        name: values.projectName,
+        title: values.projectTitle,
+        startDate: formattedDate,
+        liveLink: values.liveStreamLink,
+        projectManager: projectManagerAssigned,
+        officeManager: officeManagerAssigned,
+        financeManager: financeManagerAssigned,
+        projectOwner: projectOwnerAssigned,
+        smartSheetId: values.smartSheetId,
+      };
+      console.log(dataPayload, 'dataPayload');
+      const formData = new FormData();
+      if (projectImage) {
+        formData.append('project_images', projectImage);
+      }
+      formData.append('smartSheetId', values.smartSheetId);
+      formData.append('data', JSON.stringify(dataPayload));
+      console.log(formData.get('smartSheetId'), 'smartSheetId');
+
       const response = await createProject({ data: formData }).unwrap();
       if (response?.success) {
         toast.success(response?.message || 'Project created successfully.');
@@ -98,9 +120,10 @@ const CreateNewProject = () => {
       }
     } catch (error) {
       toast.error(error?.data?.message || 'Failed to create project.');
-      console.error(error);
+      console.error('Error creating project:', error);
     }
   };
+
   const handleProjectImageChange = (info) => {
     const file = info.file;
     if (file) {
@@ -123,6 +146,18 @@ const CreateNewProject = () => {
     showUploadList: false,
   };
 
+  // Initialize form values correctly, especially for dates
+  const initialProjectData = project?.data || {};
+  const initialValues = {
+    projectName: initialProjectData.name || '',
+    projectTitle: initialProjectData.title || '',
+    projectStartDate: initialProjectData.startDate
+      ? moment(initialProjectData.startDate)
+      : null,
+    liveStreamLink: initialProjectData.liveLink || '',
+    smartSheetId: initialProjectData.smartSheetId || undefined,
+  };
+
   return (
     <div>
       <PageHeading text={'Back to table'}></PageHeading>
@@ -132,17 +167,7 @@ const CreateNewProject = () => {
         layout="vertical"
         onFinish={onFinish}
         className="!mt-3 p-6"
-        initialValues={{
-          name: project?.data?.name || '',
-          title: project?.data?.title || '',
-          startDate: project?.data?.startDate || '',
-          liveLink: project?.data?.liveLink || '',
-          projectManager:
-            project?.data?.projectManager || projectManagerAssigned,
-          officeManager: project?.data?.officeManager || officeManagerAssigned,
-          financeManager:
-            project?.data?.financeManager || financeManagerAssigned,
-        }}
+        initialValues={initialValues}
       >
         <div className="grid grid-cols-1 gap-4">
           <Card>
@@ -244,6 +269,29 @@ const CreateNewProject = () => {
                   </Row>
 
                   <Row gutter={24}>
+                    <Col span={24}>
+                      <Form.Item
+                        name="smartSheetId"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Select smart shit
+                          </Title>
+                        }
+                      >
+                        <Select
+                          options={
+                            smartShit?.result?.sheets?.map((item) => ({
+                              label: item?.name,
+                              value: item?.id,
+                            })) || []
+                          }
+                          loading={smartShitLoading}
+                          placeholder="Select smart shit"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={24}>
                     <Col span={12}>
                       <Form.Item
                         name="projectStartDate"
@@ -285,12 +333,9 @@ const CreateNewProject = () => {
                           type="primary"
                           htmlType="submit"
                           className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
+                          loading={isLoading}
                         >
-                          {isLoading ? (
-                            <span className="loader"></span>
-                          ) : (
-                            'Create Project'
-                          )}
+                          {isLoading ? 'Creating...' : 'Create Project'}
                         </Button>
                       </Form.Item>
                     </Col>

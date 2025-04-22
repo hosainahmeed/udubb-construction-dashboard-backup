@@ -13,6 +13,7 @@ import {
   Modal,
   Image,
   Tag,
+  Select,
 } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
@@ -34,6 +35,7 @@ import { useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import { FaRegEdit } from 'react-icons/fa';
 import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
+import { useGetAllSmartShitQuery } from '../../Redux/services/pagesApisServices/smartShitApis';
 const { Title } = Typography;
 
 const EditProjects = () => {
@@ -62,14 +64,21 @@ const EditProjects = () => {
 
   const [updateProject, { isLoading: updateLoading }] =
     useUpdateProjectMutation();
+  const { data: smartShit, isLoading: smartShitLoading } =
+    useGetAllSmartShitQuery();
 
   useEffect(() => {
-    if (project) {
+    if (project?.smartSheetId && smartShit?.result?.sheets) {
+      const looseCompareSheet = smartShit?.result?.sheets.find(
+        (sheet) => String(sheet.id) === String(project.smartSheetId)
+      );
+      
       form.setFieldsValue({
         projectName: project.name || '',
         projectTitle: project.title || '',
         projectStartDate: project.startDate ? moment(project.startDate) : null,
         liveStreamLink: project.liveLink || '',
+        smartSheetId: looseCompareSheet?.id || null,
       });
 
       if (project.projectImage) {
@@ -89,7 +98,7 @@ const EditProjects = () => {
         setProjectOwnerAssigned(project.projectOwner.map((po) => po._id));
       }
     }
-  }, [project, form]);
+  }, [project, form, smartShit]);
 
   const onFinish = async (values) => {
     const dataPayload = {
@@ -103,6 +112,7 @@ const EditProjects = () => {
       officeManager: officeManagerAssigned,
       financeManager: financeManagerAssigned,
       projectOwner: projectOwnerAssigned,
+      smartSheetId: values.smartSheetId,
     };
 
     const formData = new FormData();
@@ -261,7 +271,30 @@ const EditProjects = () => {
                     </Form.Item>
                   </Col>
                 </Row>
-
+                <Row gutter={24}>
+                  <Col span={24}>
+                    <Form.Item
+                      name="smartSheetId"
+                      label={
+                        <Title level={5} className="text-gray-700 mb-1">
+                          Select smart shit
+                        </Title>
+                      }
+                    >
+                      <Select
+                        options={
+                          smartShit?.result?.sheets?.map((item) => ({
+                            label: item?.name,
+                            value: item?.id,
+                          })) || []
+                        }
+                        loading={smartShitLoading}
+                        placeholder="Select smart shit"
+                        optionFilterProp="label"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
                 <Row gutter={24}>
                   <Col span={12}>
                     <Form.Item
