@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Input,
@@ -9,7 +9,6 @@ import {
   Col,
   Card,
   Typography,
-  message,
   Modal,
   Select,
 } from 'antd';
@@ -32,9 +31,9 @@ import { useLocation } from 'react-router';
 import toast from 'react-hot-toast';
 import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
 import { useGetAllSmartShitQuery } from '../../Redux/services/pagesApisServices/smartShitApis';
-import moment from 'moment'; // Import moment for date handling
+import moment from 'moment';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const CreateNewProject = () => {
   const location = useLocation();
@@ -51,6 +50,15 @@ const CreateNewProject = () => {
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
   const { data: smartShit, isLoading: smartShitLoading } =
     useGetAllSmartShitQuery();
+  useEffect(() => {
+    form.resetFields();
+    setProjectImage(null);
+    setProjectImageUrl('');
+    setProjectManagerAssigned([]);
+    setOfficeManagerAssigned([]);
+    setFinanceManagerAssigned([]);
+    setProjectOwnerAssigned([]);
+  }, []);
   const {
     projectOwnerAssigned,
     setProjectOwnerAssigned,
@@ -65,10 +73,8 @@ const CreateNewProject = () => {
 
   const onFinish = async (values) => {
     try {
-      // Handle the date formatting safely
       let formattedDate;
       if (values.projectStartDate) {
-        // Check if it's a moment object
         if (
           values.projectStartDate &&
           typeof values.projectStartDate.format === 'function'
@@ -77,7 +83,6 @@ const CreateNewProject = () => {
             'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
           );
         } else {
-          // If not a moment object, create a new date
           formattedDate = new Date(values.projectStartDate).toISOString();
         }
       } else {
@@ -102,7 +107,6 @@ const CreateNewProject = () => {
       }
       formData.append('smartSheetId', values.smartSheetId);
       formData.append('data', JSON.stringify(dataPayload));
-      console.log(formData.get('smartSheetId'), 'smartSheetId');
 
       const response = await createProject({ data: formData }).unwrap();
       if (response?.success) {
@@ -114,7 +118,16 @@ const CreateNewProject = () => {
         setOfficeManagerAssigned([]);
         setFinanceManagerAssigned([]);
         setProjectOwnerAssigned([]);
-        window.location.reload();
+        if (
+          setProjectImage(null) &&
+          setProjectImageUrl('') &&
+          setProjectManagerAssigned([]) &&
+          setOfficeManagerAssigned([]) &&
+          setFinanceManagerAssigned([]) &&
+          setProjectOwnerAssigned([])
+        ) {
+          window.location.reload();
+        }
       } else {
         toast.error(response?.data?.message || 'Failed to create project.');
       }
