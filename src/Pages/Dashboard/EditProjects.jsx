@@ -72,7 +72,7 @@ const EditProjects = () => {
       const looseCompareSheet = smartShit?.result?.sheets.find(
         (sheet) => String(sheet.id) === String(project.smartSheetId)
       );
-      
+
       form.setFieldsValue({
         projectName: project.name || '',
         projectTitle: project.title || '',
@@ -236,12 +236,6 @@ const EditProjects = () => {
                           Project Name
                         </Title>
                       }
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please enter project name',
-                        },
-                      ]}
                     >
                       <Input
                         placeholder="Enter project name here..."
@@ -257,12 +251,6 @@ const EditProjects = () => {
                           Project Title
                         </Title>
                       }
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please enter project title',
-                        },
-                      ]}
                     >
                       <Input
                         placeholder="Enter project title here..."
