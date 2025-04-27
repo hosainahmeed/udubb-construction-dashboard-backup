@@ -15,7 +15,7 @@ import {
   Tag,
   Select,
 } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { CheckOutlined, UploadOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
 import moment from 'moment';
 import PageHeading from '../../Components/Shared/PageHeading';
@@ -36,6 +36,7 @@ import toast from 'react-hot-toast';
 import { FaRegEdit } from 'react-icons/fa';
 import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
 import { useGetAllSmartShitQuery } from '../../Redux/services/pagesApisServices/smartShitApis';
+
 const { Title } = Typography;
 
 const EditProjects = () => {
@@ -50,6 +51,7 @@ const EditProjects = () => {
     financeManagerAssigned,
     setFinanceManagerAssigned,
   } = useProjectsCreate();
+
   const id = location?.state;
   const { data: projectData } = useGetSingleProjectQuery({ id: id });
   const project = projectData?.data;
@@ -61,15 +63,16 @@ const EditProjects = () => {
   const [OfficeManagerModal, setOfficeManagerModal] = useState(false);
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
   const [userData, setUserData] = useState({});
-
+  const [locationInput, setLocationInput] = useState('');
+  const [locationTags, setLocationTags] = useState([]);
   const [updateProject, { isLoading: updateLoading }] =
     useUpdateProjectMutation();
   const { data: smartShit, isLoading: smartShitLoading } =
     useGetAllSmartShitQuery();
 
   useEffect(() => {
-    if (project?.smartSheetId && smartShit?.result?.sheets) {
-      const looseCompareSheet = smartShit?.result?.sheets.find(
+    if (project) {
+      const looseCompareSheet = smartShit?.result?.sheets?.find(
         (sheet) => String(sheet.id) === String(project.smartSheetId)
       );
 
@@ -83,6 +86,10 @@ const EditProjects = () => {
 
       if (project.projectImage) {
         setProjectImageUrl(project.projectImage);
+      }
+
+      if (project?.locationDropDownItems) {
+        setLocationTags(project.locationDropDownItems);
       }
 
       if (project.projectManager) {
@@ -100,36 +107,52 @@ const EditProjects = () => {
     }
   }, [project, form, smartShit]);
 
-  const onFinish = async (values) => {
-    const dataPayload = {
-      name: values.projectName,
-      title: values.projectTitle,
-      startDate: values.projectStartDate
-        ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
-        : new Date().toISOString(),
-      liveLink: values.liveStreamLink,
-      projectManager: projectManagerAssigned,
-      officeManager: officeManagerAssigned,
-      financeManager: financeManagerAssigned,
-      projectOwner: projectOwnerAssigned,
-      smartSheetId: values.smartSheetId,
-    };
-
-    const formData = new FormData();
-    if (projectImage) {
-      formData.append('project_images', projectImage);
+  const handleAddLocationTag = () => {
+    if (locationInput && !locationTags.includes(locationInput)) {
+      setLocationTags([...locationTags, locationInput]);
+      setLocationInput('');
+    } else {
+      toast.error('This location is already added!');
     }
-    formData.append('data', JSON.stringify(dataPayload));
+  };
+
+  const handleRemoveLocationTag = (removedTag) => {
+    const newTags = locationTags.filter((tag) => tag !== removedTag);
+    setLocationTags(newTags);
+  };
+
+  const onFinish = async (values) => {
     try {
+      const dataPayload = {
+        name: values.projectName,
+        title: values.projectTitle,
+        startDate: values.projectStartDate
+          ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+          : new Date().toISOString(),
+        liveLink: values.liveStreamLink,
+        projectManager: projectManagerAssigned,
+        officeManager: officeManagerAssigned,
+        financeManager: financeManagerAssigned,
+        projectOwner: projectOwnerAssigned,
+        locationDropDownItems: locationTags,
+        smartSheetId: values.smartSheetId,
+      };
+
+      const formData = new FormData();
+      if (projectImage) {
+        formData.append('project_images', projectImage);
+      }
+      formData.append('data', JSON.stringify(dataPayload));
+
       const response = await updateProject({ id, data: formData }).unwrap();
       if (response?.success) {
         toast.success('Project updated successfully!');
       } else {
-        toast.error(response?.message || 'Unknown error');
+        toast.error(response?.message || 'Failed to update project');
       }
     } catch (error) {
-      toast.error(error?.message || 'Unknown error');
-      console.error(error);
+      toast.error(error?.data?.message || 'Failed to update project');
+      console.error('Error updating project:', error);
     }
   };
 
@@ -174,27 +197,26 @@ const EditProjects = () => {
         className="mt-3"
       >
         <div className="grid grid-cols-1 gap-4">
-          {/* Image Card - Fixed Height with Scroll */}
-          <div className="flex gap-3 items-center ">
+          <div className="flex gap-3 items-center">
             <div className="flex-1 h-fit overflow-y-auto">
               <Card className="h-full">
                 <Form.Item
                   name="projectImage"
                   label={
                     <Title level={4} className="text-gray-700 mb-2">
-                      Add Project Image
+                      Project Image
                     </Title>
                   }
                 >
                   <Card className="!w-full h-64 relative !border-2 !border-dashed !border-gray-300 flex items-center justify-center overflow-hidden">
                     {projectImageUrl ? (
-                      <div className="!w-full relative !h-full !bg-amber-300">
+                      <div className="!w-full relative !h-full">
                         <Image
                           src={projectImageUrl}
                           alt="Project Preview"
                           className="!w-full !h-full !object-cover"
                         />
-                        <div className="absolute w-full h-1/2 transform translate-y-1/2 pointer-events-none flex items-start justify-end bottom-2 !z-[888] right-2 !top-0 -mt-4">
+                        <div className="absolute top-2 right-2">
                           <Button
                             size="small"
                             shape="circle"
@@ -236,6 +258,12 @@ const EditProjects = () => {
                           Project Name
                         </Title>
                       }
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please enter project name',
+                        },
+                      ]}
                     >
                       <Input
                         placeholder="Enter project name here..."
@@ -251,6 +279,12 @@ const EditProjects = () => {
                           Project Title
                         </Title>
                       }
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please enter project title',
+                        },
+                      ]}
                     >
                       <Input
                         placeholder="Enter project title here..."
@@ -262,10 +296,49 @@ const EditProjects = () => {
                 <Row gutter={24}>
                   <Col span={24}>
                     <Form.Item
+                      label={
+                        <Title level={5} className="text-gray-700 mb-1">
+                          Project Locations
+                        </Title>
+                      }
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <Input
+                          value={locationInput}
+                          onChange={(e) => setLocationInput(e.target.value)}
+                          placeholder="Enter location and press check to add"
+                          className="rounded-md py-2 flex-1"
+                          onPressEnter={handleAddLocationTag}
+                        />
+                        <Button
+                          type="primary"
+                          icon={<CheckOutlined />}
+                          onClick={handleAddLocationTag}
+                          disabled={!locationInput}
+                        />
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {locationTags.map((tag) => (
+                          <Tag
+                            key={tag}
+                            closable
+                            onClose={() => handleRemoveLocationTag(tag)}
+                            className="text-sm py-1 px-2"
+                          >
+                            {tag}
+                          </Tag>
+                        ))}
+                      </div>
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={24}>
+                  <Col span={24}>
+                    <Form.Item
                       name="smartSheetId"
                       label={
                         <Title level={5} className="text-gray-700 mb-1">
-                          Select smart shit
+                          Select Smart Sheet
                         </Title>
                       }
                     >
@@ -277,7 +350,7 @@ const EditProjects = () => {
                           })) || []
                         }
                         loading={smartShitLoading}
-                        placeholder="Select smart shit"
+                        placeholder="Select smart sheet"
                         optionFilterProp="label"
                       />
                     </Form.Item>
@@ -317,9 +390,8 @@ const EditProjects = () => {
                     </Form.Item>
                   </Col>
                 </Row>
-
                 <Row>
-                  <Col span={24} className="">
+                  <Col span={24}>
                     <Form.Item>
                       <Button
                         type="primary"
@@ -336,7 +408,6 @@ const EditProjects = () => {
             </div>
           </div>
 
-          {/* Assign Components - Fixed Height with Scroll */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <Card>
               <div className="h-[400px] overflow-y-scroll">
@@ -386,6 +457,8 @@ const EditProjects = () => {
           </div>
         </div>
       </Form>
+
+      {/* Modals */}
       <Modal
         open={projectsManagerModal}
         onCancel={() => setProjectsManagerModal(false)}

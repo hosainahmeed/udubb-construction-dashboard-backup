@@ -11,8 +11,9 @@ import {
   Typography,
   Modal,
   Select,
+  Tag,
 } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, CheckOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
 import PageHeading from '../../Components/Shared/PageHeading';
 import {
@@ -50,6 +51,10 @@ const CreateNewProject = () => {
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
   const { data: smartShit, isLoading: smartShitLoading } =
     useGetAllSmartShitQuery();
+
+  const [locationInput, setLocationInput] = useState('');
+  const [locationDropDownItems, setLocationTags] = useState([]);
+
   useEffect(() => {
     form.resetFields();
     setProjectImage(null);
@@ -58,7 +63,9 @@ const CreateNewProject = () => {
     setOfficeManagerAssigned([]);
     setFinanceManagerAssigned([]);
     setProjectOwnerAssigned([]);
+    setLocationTags([]);
   }, []);
+
   const {
     projectOwnerAssigned,
     setProjectOwnerAssigned,
@@ -70,6 +77,20 @@ const CreateNewProject = () => {
     setFinanceManagerAssigned,
   } = useProjectsCreate();
   const [createProject, { isLoading }] = useCreateProjectsMutation();
+
+  const handleAddLocationTag = () => {
+    if (locationInput && !locationDropDownItems.includes(locationInput)) {
+      setLocationTags([...locationDropDownItems, locationInput]);
+      setLocationInput('');
+    } else {
+      toast.error('This is already added!');
+    }
+  };
+
+  const handleRemoveLocationTag = (removedTag) => {
+    const newTags = locationDropDownItems.filter((tag) => tag !== removedTag);
+    setLocationTags(newTags);
+  };
 
   const onFinish = async (values) => {
     try {
@@ -98,9 +119,10 @@ const CreateNewProject = () => {
         officeManager: officeManagerAssigned,
         financeManager: financeManagerAssigned,
         projectOwner: projectOwnerAssigned,
+        locationDropDownItems: locationDropDownItems,
         smartSheetId: values.smartSheetId,
       };
-      console.log(dataPayload, 'dataPayload');
+
       const formData = new FormData();
       if (projectImage) {
         formData.append('project_images', projectImage);
@@ -118,6 +140,7 @@ const CreateNewProject = () => {
         setOfficeManagerAssigned([]);
         setFinanceManagerAssigned([]);
         setProjectOwnerAssigned([]);
+        setLocationTags([]);
         if (
           setProjectImage(null) &&
           setProjectImageUrl('') &&
@@ -281,13 +304,53 @@ const CreateNewProject = () => {
                     </Col>
                   </Row>
 
+                  {/* Add Location Tags Field */}
+                  <Row gutter={24}>
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Locations
+                          </Title>
+                        }
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Input
+                            value={locationInput}
+                            onChange={(e) => setLocationInput(e.target.value)}
+                            placeholder="Enter location and press check to add"
+                            className="rounded-md py-2 flex-1"
+                          />
+                          <Button
+                            type="primary"
+                            icon={<CheckOutlined />}
+                            onClick={handleAddLocationTag}
+                            disabled={!locationInput}
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {locationDropDownItems.map((tag) => (
+                            <Tag
+                              key={tag}
+                              closable
+                              onClose={() => handleRemoveLocationTag(tag)}
+                              className="text-sm py-1 px-2"
+                            >
+                              {tag}
+                            </Tag>
+                          ))}
+                        </div>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
                   <Row gutter={24}>
                     <Col span={24}>
                       <Form.Item
                         name="smartSheetId"
                         label={
                           <Title level={5} className="text-gray-700 mb-1">
-                            Select smart shit
+                            Select smart sheet
                           </Title>
                         }
                       >
@@ -299,11 +362,12 @@ const CreateNewProject = () => {
                             })) || []
                           }
                           loading={smartShitLoading}
-                          placeholder="Select smart shit"
+                          placeholder="Select smart sheet"
                         />
                       </Form.Item>
                     </Col>
                   </Row>
+
                   <Row gutter={24}>
                     <Col span={12}>
                       <Form.Item
@@ -391,6 +455,7 @@ const CreateNewProject = () => {
           </div>
         </div>
       </Form>
+
       <Modal
         open={projectsOwnerModal}
         onCancel={() => setProjectsOwnerModal(false)}
