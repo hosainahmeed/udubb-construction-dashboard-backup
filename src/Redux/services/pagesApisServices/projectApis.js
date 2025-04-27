@@ -18,13 +18,16 @@ export const projectApis = baseApis.injectEndpoints({
       providesTags: ['project'],
     }),
     createProjects: builder.mutation({
-      query: (data) => ({
-        url: '/project/create-project',
-        method: 'POST',
-        body: data,
-      }),
+      query: ({ data }) => {
+        return {
+          url: '/project/create-project',
+          method: 'POST',
+          body: data,
+        };
+      },
       invalidatesTags: ['project'],
     }),
+
     updateProject: builder.mutation({
       query: ({ id, data }) => ({
         url: `/project/update-project/${id}`,
@@ -32,6 +35,14 @@ export const projectApis = baseApis.injectEndpoints({
         body: data,
       }),
       invalidatesTags: ['project'],
+    }),
+    getProjectsImags: builder.query({
+      query: ({ id, page, limit }) => ({
+        url: `/project-image/get-project-images/${id}`,
+        method: 'GET',
+        params: { page, limit },
+      }),
+      providesTags: ['project'],
     }),
   }),
 });
@@ -41,4 +52,5 @@ export const {
   useGetSingleProjectQuery,
   useCreateProjectsMutation,
   useUpdateProjectMutation,
+  useGetProjectsImagsQuery,
 } = projectApis;

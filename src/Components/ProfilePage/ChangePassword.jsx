@@ -3,27 +3,11 @@ import { Button, Form, Input, Spin } from 'antd';
 import { usePatchNewPasswordMutation } from '../../Redux/services/authApis';
 import toast from 'react-hot-toast';
 
-
 const ChangePassword = () => {
   const [form] = Form.useForm();
-  const [showOldPassword, setShowOldPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [setNewPassword, { isLoading: isNewPassChange }] =
     usePatchNewPasswordMutation({});
-  const toggleOldPassword = () => {
-    setShowOldPassword(!showOldPassword);
-  };
-
-  const toggleNewPassword = () => {
-    setShowNewPassword(!showNewPassword);
-  };
-
-  const toggleConfirmPassword = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
   const onFinish = async (values) => {
-
     const ChangePasswordDatas = {
       oldPassword: values.oldPassword,
       newPassword: values.newPassword,
@@ -31,16 +15,16 @@ const ChangePassword = () => {
     };
     try {
       const res = await setNewPassword(ChangePasswordDatas).unwrap();
-      if (res?.data?.success) {
-        toast.success(res?.data?.message || 'Password Changed successfully.');
+      if (res?.success) {
+        toast.success(res?.message || 'Password Changed successfully.');
         localStorage.removeItem('accessToken');
         window.location.href = '/login';
       } else {
-        toast.error(res?.error?.data?.message || 'Failed to change Password.');
+        toast.error(res?.error?.message || 'Failed to change Password.');
       }
     } catch (error) {
       console.error('Failed to change password:', error);
-      toast.error('Failed to change Password.');
+      toast.error(error?.message || 'Failed to change Password.');
     }
   };
   const checkConfirmPassword = (_, value) => {
@@ -58,7 +42,6 @@ const ChangePassword = () => {
       layout="vertical"
     >
       <Form.Item
-        type={showOldPassword ? 'text' : 'password'}
         name="oldPassword"
         label={<span className="text-black">Old Password</span>}
         rules={[
@@ -136,11 +119,10 @@ const ChangePassword = () => {
       <Button
         type="primary"
         htmlType="submit"
-        // disabled={isNewPassChange}
+        disabled={isNewPassChange}
         className="!bg-[#213555] !hover:bg-[#213555] active:bg-[#213555] w-full"
       >
-        {/* {isNewPassChange ? <Spin /> : "Update password"} */}
-        update pass
+        {isNewPassChange ? <Spin /> : 'Update password'}
       </Button>
     </Form>
   );

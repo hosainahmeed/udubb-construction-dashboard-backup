@@ -5,13 +5,14 @@ import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router';
 import { FaPlus } from 'react-icons/fa';
+import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
+import { MdDelete } from 'react-icons/md';
 const { Search } = Input;
 
-function ProjectsManagerModal({
-  setProjectManagerAssigned,
-  setProjectsManagerModal,
-}) {
+function ProjectsManagerModal() {
   const [searchTerm, setSearchTerm] = useState('');
+  const { projectManagerAssigned, setProjectManagerAssigned } =
+    useProjectsCreate();
   const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'manager',
     searchTerm: searchTerm,
@@ -23,19 +24,31 @@ function ProjectsManagerModal({
   };
 
   if (isLoading) {
-    return <span class="loader"></span>;
+    return <span className="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
   const handleAssign = (user) => {
-    setProjectManagerAssigned(user?._id);
-    localStorage.setItem('projectManager', user?._id);
-    refetch();
-    toast.success('Manager assigned successfully');
-    setProjectsManagerModal(false);
+    // Check if user is already assigned
+    if (projectManagerAssigned.includes(user?._id)) {
+      toast.error('This manager is already assigned!');
+      return;
+    }
+
+    setProjectManagerAssigned([...projectManagerAssigned, user?._id]);
+    toast.success('Project manager assigned!');
   };
 
+  // Function to check if a user is already assigned
+  const isUserAssigned = (userId) => {
+    return projectManagerAssigned.includes(userId);
+  };
+  const handleDelete = async (id) => {
+    const updatedList = projectManagerAssigned.filter((item) => item !== id);
+    setProjectManagerAssigned(updatedList);
+    toast.success('Project Manager removed!');
+  };
   return (
     <div className="flex flex-col items-start gap-2 !w-full">
       <h1 className="text-2xl font-semibold">Projects Managers</h1>
@@ -76,13 +89,24 @@ function ProjectsManagerModal({
                   'https://i.ibb.co.com/PsxKbMWH/defult-Image.jpg'
                 }
               />
-
-              <Button
-                onClick={() => handleAssign(user)}
-                className="!bg-[#213555] !text-white !px-6 !py-5"
-              >
-                Assign
-              </Button>
+              <div className="flex items-center gap-2">
+                {isUserAssigned(user?._id) && (
+                  <Button
+                    shape="circle"
+                    onClick={() => handleDelete(user._id)}
+                    className="!bg-white !text-black w-fit px-2 py-1 rounded"
+                  >
+                    <MdDelete />
+                  </Button>
+                )}
+                <Button
+                  onClick={() => handleAssign(user)}
+                  className="!bg-[#213555] !text-white !px-6 !py-5"
+                  disabled={isUserAssigned(user?._id)}
+                >
+                  {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
+                </Button>
+              </div>
             </div>
           </Card>
         ))

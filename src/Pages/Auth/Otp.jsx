@@ -13,10 +13,10 @@ const Otp = () => {
   const [verifyOtp] = useVerifyOtpMutation();
   const [resendOtp] = useResendOtpMutation();
   const [form] = Form.useForm();
+  const email = localStorage.getItem('forgetEmail');
 
   const handleContinue = async (values) => {
     const otp = Number(values.otp);
-    const email = localStorage.getItem('forgetEmail');
     if (values.otp.length !== 6) {
       return toast.error('Please enter a valid OTP.');
     }
@@ -36,6 +36,7 @@ const Otp = () => {
       console.error('Failed to verify OTP:', error);
     }
   };
+
 
   const handleResend = async () => {
     form.resetFields();
@@ -89,7 +90,7 @@ const Otp = () => {
             Reset Password
           </Title>
           <Text type="secondary">
-            We sent a 6-digit OTP to <Text strong>micheal@gmail.com</Text>.
+            We sent a 6-digit OTP to <Text strong>{email}</Text>.
             Please input it below.
           </Text>
         </Space>

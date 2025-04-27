@@ -5,9 +5,11 @@ import UsernameImage from '../../../../Utils/Sideber/UserImage';
 import { FaPlus } from 'react-icons/fa';
 import { Link } from 'react-router';
 import toast from 'react-hot-toast';
+import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
+import { MdDelete } from 'react-icons/md';
 const { Search } = Input;
 
-function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
+function FinanceMangers({ setFinanceManagerModal }) {
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading, refetch } = useGetAllUserQuery({
     role: 'financeManager',
@@ -15,22 +17,40 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
     limit: 999,
   });
 
+  const { financeManagerAssigned, setFinanceManagerAssigned } =
+    useProjectsCreate();
+
   const onSearch = (value) => {
     setSearchTerm(value);
   };
 
   if (isLoading) {
-    return <span class="loader"></span>;
+    return <span className="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data.data.result.length > 0;
 
   const handleAssign = (user) => {
-    setFinanceManagerAssigned(user?._id);
-    localStorage.setItem('financeManager', user?._id);
+    // Check if user is already assigned
+    if (financeManagerAssigned.includes(user?._id)) {
+      toast.error('This finance manager is already assigned!');
+      return;
+    }
+
+    setFinanceManagerAssigned([...financeManagerAssigned, user?._id]);
+    toast.success('Finance manager assigned!');
+  };
+
+  // Function to check if a user is already assigned
+  const isUserAssigned = (userId) => {
+    return financeManagerAssigned.includes(userId);
+  };
+
+  const handleRemove = () => {
+    localStorage.removeItem('financeManager');
+    setSelectedFinanceManager(null);
+    toast.success('Finance Manager removed!');
     refetch();
-    toast.success('Finance manager assigned.');
-    setFinanceManagerModal(false);
   };
 
   return (
@@ -77,12 +97,24 @@ function FinanceMangers({ setFinanceManagerAssigned, setFinanceManagerModal }) {
                 }
               />
 
-              <Button
-                onClick={() => handleAssign(user)}
-                className="!bg-[#213555] !text-white !px-6 !py-5"
-              >
-                Assign
-              </Button>
+              <div className="flex items-center gap-2">
+                {isUserAssigned(user?._id) && (
+                  <Button
+                    shape="circle"
+                    onClick={() => handleRemove(user._id)}
+                    className="!bg-white !text-black w-fit px-2 py-1 rounded"
+                  >
+                    <MdDelete />
+                  </Button>
+                )}
+                <Button
+                  onClick={() => handleAssign(user)}
+                  className="!bg-[#213555] !text-white !px-6 !py-5"
+                  disabled={isUserAssigned(user?._id)}
+                >
+                  {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
+                </Button>
+              </div>
             </div>
           </Card>
         ))

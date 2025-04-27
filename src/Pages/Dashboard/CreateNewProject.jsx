@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Form,
   Input,
@@ -9,10 +9,11 @@ import {
   Col,
   Card,
   Typography,
-  message,
   Modal,
+  Select,
+  Tag,
 } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, CheckOutlined } from '@ant-design/icons';
 import { MdDeleteForever } from 'react-icons/md';
 import PageHeading from '../../Components/Shared/PageHeading';
 import {
@@ -29,8 +30,11 @@ import OfficeManagerAssignComponent from '../../Components/AssignComponent/Offic
 import FinanceManagerAssignComponent from '../../Components/AssignComponent/FinanceManagerAssignComponent';
 import { useLocation } from 'react-router';
 import toast from 'react-hot-toast';
+import useProjectsCreate from '../../contexts/hooks/useProjectsCreate';
+import { useGetAllSmartShitQuery } from '../../Redux/services/pagesApisServices/smartShitApis';
+import moment from 'moment';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const CreateNewProject = () => {
   const location = useLocation();
@@ -45,67 +49,117 @@ const CreateNewProject = () => {
   const [projectsManagerModal, setProjectsManagerModal] = useState(false);
   const [OfficeManagerModal, setOfficeManagerModal] = useState(false);
   const [financeManagerModal, setFinanceManagerModal] = useState(false);
-  const [projectOwnerAssigned, setProjectOwnerAssigned] = useState(null);
-  const [projectManagerAssigned, setProjectManagerAssigned] = useState(null);
-  const [officeManagerAssigned, setOfficeManagerAssigned] = useState(false);
-  const [financeManagerAssigned, setFinanceManagerAssigned] = useState(false);
+  const { data: smartShit, isLoading: smartShitLoading } =
+    useGetAllSmartShitQuery();
+
+  const [locationInput, setLocationInput] = useState('');
+  const [locationDropDownItems, setLocationTags] = useState([]);
+
+  useEffect(() => {
+    form.resetFields();
+    setProjectImage(null);
+    setProjectImageUrl('');
+    setProjectManagerAssigned([]);
+    setOfficeManagerAssigned([]);
+    setFinanceManagerAssigned([]);
+    setProjectOwnerAssigned([]);
+    setLocationTags([]);
+  }, []);
+
+  const {
+    projectOwnerAssigned,
+    setProjectOwnerAssigned,
+    projectManagerAssigned,
+    setProjectManagerAssigned,
+    officeManagerAssigned,
+    setOfficeManagerAssigned,
+    financeManagerAssigned,
+    setFinanceManagerAssigned,
+  } = useProjectsCreate();
   const [createProject, { isLoading }] = useCreateProjectsMutation();
 
-  const onFinish = async (values) => {
-    const formData = new FormData();
-
-    if (projectImage) {
-      formData.append('project_images', projectImage);
+  const handleAddLocationTag = () => {
+    if (locationInput && !locationDropDownItems.includes(locationInput)) {
+      setLocationTags([...locationDropDownItems, locationInput]);
+      setLocationInput('');
+    } else {
+      toast.error('This is already added!');
     }
+  };
 
-    const dataPayload = {
-      name: values.projectName,
-      projectOwnerEmail: values.projectOwnerEmail,
-      title: values.projectTitle,
-      startDate: values.projectStartDate
-        ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
-        : new Date().toISOString(),
-      liveLink: values.liveStreamLink,
-      projectManager:
-        projectManagerAssigned || localStorage.getItem('projectManager') || '',
-      officeManager:
-        officeManagerAssigned || localStorage.getItem('officeManager') || '',
-      financeManager:
-        financeManagerAssigned || localStorage.getItem('financeManager') || '',
-      projectOwner:
-        projectOwnerAssigned || localStorage.getItem('projectOwner') || '',
-    };
+  const handleRemoveLocationTag = (removedTag) => {
+    const newTags = locationDropDownItems.filter((tag) => tag !== removedTag);
+    setLocationTags(newTags);
+  };
 
-    Object.entries(dataPayload).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(key, value);
-      }
-    });
-
+  const onFinish = async (values) => {
     try {
-      const response = await createProject(formData).unwrap();
+      let formattedDate;
+      if (values.projectStartDate) {
+        if (
+          values.projectStartDate &&
+          typeof values.projectStartDate.format === 'function'
+        ) {
+          formattedDate = values.projectStartDate.format(
+            'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
+          );
+        } else {
+          formattedDate = new Date(values.projectStartDate).toISOString();
+        }
+      } else {
+        formattedDate = new Date().toISOString();
+      }
+
+      const dataPayload = {
+        name: values.projectName,
+        title: values.projectTitle,
+        startDate: formattedDate,
+        liveLink: values.liveStreamLink,
+        projectManager: projectManagerAssigned,
+        officeManager: officeManagerAssigned,
+        financeManager: financeManagerAssigned,
+        projectOwner: projectOwnerAssigned,
+        locationDropDownItems: locationDropDownItems,
+        smartSheetId: values.smartSheetId,
+      };
+
+      const formData = new FormData();
+      if (projectImage) {
+        formData.append('project_images', projectImage);
+      }
+      formData.append('smartSheetId', values.smartSheetId);
+      formData.append('data', JSON.stringify(dataPayload));
+
+      const response = await createProject({ data: formData }).unwrap();
       if (response?.success) {
         toast.success(response?.message || 'Project created successfully.');
         form.resetFields();
         setProjectImage(null);
         setProjectImageUrl('');
-        setProjectManagerAssigned(null);
-        setOfficeManagerAssigned(null);
-        setFinanceManagerAssigned(null);
-        setProjectOwnerAssigned(null);
-        localStorage.removeItem('financeManager');
-        localStorage.removeItem('officeManager');
-        localStorage.removeItem('projectManager');
-        localStorage.removeItem('projectOwner');
-        window.location.reload();
+        setProjectManagerAssigned([]);
+        setOfficeManagerAssigned([]);
+        setFinanceManagerAssigned([]);
+        setProjectOwnerAssigned([]);
+        setLocationTags([]);
+        if (
+          setProjectImage(null) &&
+          setProjectImageUrl('') &&
+          setProjectManagerAssigned([]) &&
+          setOfficeManagerAssigned([]) &&
+          setFinanceManagerAssigned([]) &&
+          setProjectOwnerAssigned([])
+        ) {
+          window.location.reload();
+        }
       } else {
         toast.error(response?.data?.message || 'Failed to create project.');
       }
     } catch (error) {
       toast.error(error?.data?.message || 'Failed to create project.');
-      console.error(error);
+      console.error('Error creating project:', error);
     }
   };
+
   const handleProjectImageChange = (info) => {
     const file = info.file;
     if (file) {
@@ -128,6 +182,18 @@ const CreateNewProject = () => {
     showUploadList: false,
   };
 
+  // Initialize form values correctly, especially for dates
+  const initialProjectData = project?.data || {};
+  const initialValues = {
+    projectName: initialProjectData.name || '',
+    projectTitle: initialProjectData.title || '',
+    projectStartDate: initialProjectData.startDate
+      ? moment(initialProjectData.startDate)
+      : null,
+    liveStreamLink: initialProjectData.liveLink || '',
+    smartSheetId: initialProjectData.smartSheetId || undefined,
+  };
+
   return (
     <div>
       <PageHeading text={'Back to table'}></PageHeading>
@@ -137,33 +203,22 @@ const CreateNewProject = () => {
         layout="vertical"
         onFinish={onFinish}
         className="!mt-3 p-6"
-        initialValues={{
-          name: project?.data?.name || '',
-          projectOwnerEmail: project?.data?.projectOwnerEmail || '',
-          title: project?.data?.title || '',
-          startDate: project?.data?.startDate || '',
-          liveLink: project?.data?.liveLink || '',
-          projectManager:
-            project?.data?.projectManager || projectManagerAssigned,
-          officeManager: project?.data?.officeManager || officeManagerAssigned,
-          financeManager:
-            project?.data?.financeManager || financeManagerAssigned,
-        }}
+        initialValues={initialValues}
       >
-        <div className="flex items-start gap-2">
-          <div className="flex-1">
-            <Card>
-              <Row gutter={24}>
-                <Col span={24}>
-                  <Form.Item
-                    name="projectImage"
-                    label={
-                      <Title level={4} className="text-gray-700 mb-2">
-                        Add Project Image
-                      </Title>
-                    }
-                  >
-                    <Card className="h-38 relative !border-2 !border-dashed !border-gray-300 flex items-center justify-center overflow-hidden">
+        <div className="grid grid-cols-1 gap-4">
+          <Card>
+            <div className="flex gap-3 items-center ">
+              <div className="flex-1">
+                <Form.Item
+                  name="projectImage"
+                  label={
+                    <Title level={4} className="text-gray-700 mb-2">
+                      Add Project Image
+                    </Title>
+                  }
+                >
+                  <div>
+                    <Card className="h-[300px] relative !border-2 !border-dashed !border-gray-300 flex items-center justify-center overflow-hidden">
                       {projectImageUrl ? (
                         <div className="w-full h-full relative">
                           <img
@@ -171,10 +226,11 @@ const CreateNewProject = () => {
                             alt="Project Preview"
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute w-full h-full pointer-events-none flex items-center justify-center bottom-2 !z-[888] right-2">
+                          <div className="absolute w-full h-1/2 transform -translate-y-1/2 pointer-events-none flex items-start justify-end bottom-2 !z-[888] right-2">
                             <Button
+                              shape="circle"
                               size="small"
-                              className="!pointer-events-auto !bg-red-500 !text-white"
+                              className="!pointer-events-auto !bg-white !text-black"
                               onClick={() => {
                                 setProjectImageUrl('');
                                 setProjectImage(null);
@@ -198,152 +254,220 @@ const CreateNewProject = () => {
                         </Upload>
                       )}
                     </Card>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-            <Card className="!mt-2">
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    name="projectOwnerEmail"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Owner Email
-                      </Title>
-                    }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please enter project owner email',
-                      },
-                      {
-                        type: 'email',
-                        message: 'Please enter a valid email',
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="email"
-                      placeholder="Enter project owner email here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="projectName"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Name
-                      </Title>
-                    }
-                    rules={[
-                      { required: true, message: 'Please enter project name' },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Enter project name here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                  </div>
+                </Form.Item>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <Card className="!mt-2">
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="projectName"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Name
+                          </Title>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please enter project name',
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter project name here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="projectTitle"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Title
+                          </Title>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please enter project title',
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Enter project title here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-              <Row gutter={24}>
-                <Col span={24}>
-                  <Form.Item
-                    name="projectTitle"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Title
-                      </Title>
-                    }
-                    rules={[
-                      { required: true, message: 'Please enter project title' },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Enter project title here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                  {/* Add Location Tags Field */}
+                  <Row gutter={24}>
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Locations
+                          </Title>
+                        }
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Input
+                            value={locationInput}
+                            onChange={(e) => setLocationInput(e.target.value)}
+                            placeholder="Enter location and press check to add"
+                            className="rounded-md py-2 flex-1"
+                          />
+                          <Button
+                            type="primary"
+                            icon={<CheckOutlined />}
+                            onClick={handleAddLocationTag}
+                            disabled={!locationInput}
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {locationDropDownItems.map((tag) => (
+                            <Tag
+                              key={tag}
+                              closable
+                              onClose={() => handleRemoveLocationTag(tag)}
+                              className="text-sm py-1 px-2"
+                            >
+                              {tag}
+                            </Tag>
+                          ))}
+                        </div>
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    name="projectStartDate"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Project Start Date
-                      </Title>
-                    }
-                  >
-                    <DatePicker
-                      format="DD/MM/YYYY"
-                      placeholder="dd/mm/yyyy"
-                      className="w-full rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="liveStreamLink"
-                    label={
-                      <Title level={5} className="text-gray-700 mb-1">
-                        Live Stream Link
-                      </Title>
-                    }
-                  >
-                    <Input
-                      type="url"
-                      placeholder="link here..."
-                      className="rounded-md py-2"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                  <Row gutter={24}>
+                    <Col span={24}>
+                      <Form.Item
+                        name="smartSheetId"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Select smart sheet
+                          </Title>
+                        }
+                      >
+                        <Select
+                          options={
+                            smartShit?.result?.sheets?.map((item) => ({
+                              label: item?.name,
+                              value: item?.id,
+                            })) || []
+                          }
+                          loading={smartShitLoading}
+                          placeholder="Select smart sheet"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
 
-              <Row>
-                <Col span={24} className="">
-                  <Form.Item>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
-                    >
-                      {isLoading ? (
-                        <span class="loader"></span>
-                      ) : (
-                        'Create Project'
-                      )}
-                    </Button>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          </div>
-          <div className="flex-1">
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="projectStartDate"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Project Start Date
+                          </Title>
+                        }
+                      >
+                        <DatePicker
+                          format="DD/MM/YYYY"
+                          placeholder="dd/mm/yyyy"
+                          className="w-full rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="liveStreamLink"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Live Stream Link
+                          </Title>
+                        }
+                      >
+                        <Input
+                          type="url"
+                          placeholder="link here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col span={24} className="">
+                      <Form.Item>
+                        <Button
+                          type="primary"
+                          htmlType="submit"
+                          className="w-full py-3 h-auto text-lg font-medium !bg-[#213555] rounded-md"
+                          loading={isLoading}
+                        >
+                          {isLoading ? 'Creating...' : 'Create Project'}
+                        </Button>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                </Card>
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
             <Card>
-              <ProjectsOwonerAssignComponent
-                setProjectsOwnerModal={setProjectsOwnerModal}
-              />
-              <ProjectsManagerAssignComponent
-                setProjectsManagerModal={setProjectsManagerModal}
-              />
-
-              <OfficeManagerAssignComponent
-                setOfficeManagerModal={setOfficeManagerModal}
-              />
-              <FinanceManagerAssignComponent
-                setFinanceManagerModal={setFinanceManagerModal}
-              />
+              <div className="max-h-[200px] overflow-y-scroll">
+                <ProjectsOwonerAssignComponent
+                  projectOwnerAssigned={projectOwnerAssigned}
+                  setProjectsOwnerModal={setProjectsOwnerModal}
+                />
+              </div>
+            </Card>
+            <Card>
+              <div className="max-h-[200px] overflow-y-scroll">
+                <ProjectsManagerAssignComponent
+                  setProjectsManagerModal={setProjectsManagerModal}
+                />
+              </div>
+            </Card>
+            <Card>
+              <div className="max-h-[200px] overflow-y-scroll">
+                <OfficeManagerAssignComponent
+                  setOfficeManagerModal={setOfficeManagerModal}
+                />
+              </div>
+            </Card>
+            <Card>
+              <div className="max-h-[200px] overflow-y-scroll">
+                <FinanceManagerAssignComponent
+                  setFinanceManagerModal={setFinanceManagerModal}
+                />
+              </div>
             </Card>
           </div>
         </div>
       </Form>
+
+      <Modal
+        open={projectsOwnerModal}
+        onCancel={() => setProjectsOwnerModal(false)}
+        footer={null}
+        width={800}
+      >
+        <ProjectsWoners
+          setProjectsOwnerModal={setProjectsOwnerModal}
+          projectOwnerAssigned={projectOwnerAssigned}
+          setProjectOwnerAssigned={setProjectOwnerAssigned}
+        />
+      </Modal>
       <Modal
         open={projectsManagerModal}
         onCancel={() => setProjectsManagerModal(false)}
@@ -351,6 +475,7 @@ const CreateNewProject = () => {
         width={800}
       >
         <ProjectsManagerModal
+          projectManagerAssigned={projectManagerAssigned}
           setProjectsManagerModal={setProjectsManagerModal}
           setProjectManagerAssigned={setProjectManagerAssigned}
         />
@@ -363,6 +488,7 @@ const CreateNewProject = () => {
       >
         <OfficeManager
           setOfficeManagerModal={setOfficeManagerModal}
+          officeManagerAssigned={officeManagerAssigned}
           setOfficeManagerAssigned={setOfficeManagerAssigned}
         />
       </Modal>
@@ -373,19 +499,9 @@ const CreateNewProject = () => {
         width={800}
       >
         <FinanceMangers
+          financeManagerAssigned={financeManagerAssigned}
           setFinanceManagerModal={setFinanceManagerModal}
           setFinanceManagerAssigned={setFinanceManagerAssigned}
-        />
-      </Modal>
-      <Modal
-        open={projectsOwnerModal}
-        onCancel={() => setProjectsOwnerModal(false)}
-        footer={null}
-        width={800}
-      >
-        <ProjectsWoners
-          setProjectsOwnerModal={setProjectsOwnerModal}
-          setProjectOwnerAssigned={setProjectOwnerAssigned}
         />
       </Modal>
     </div>

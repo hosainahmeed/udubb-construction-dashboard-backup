@@ -14,7 +14,6 @@ const ProjectManageTable = () => {
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-
   const projectDataInformation =
     data?.data?.result?.map((project, index) => ({
       key: project._id,
@@ -23,7 +22,12 @@ const ProjectManageTable = () => {
         name: project?.name || 'N/A',
         projectImage: project?.projectImage || '',
         title: project?.title || 'N/A',
-        projectOwnerEmail: project?.projectOwnerEmail || 'N/A',
+        projectOwnerEmail: Array.isArray(project?.projectOwner)
+          ? project.projectOwner
+              ?.slice(0, 1)
+              ?.map((pm) => pm?.email)
+              .join(', ')
+          : 'N/A',
         liveLink: project?.liveLink || 'N/A',
         startDate: project?.startDate || 'N/A',
       },

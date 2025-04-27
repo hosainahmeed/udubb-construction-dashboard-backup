@@ -5,12 +5,13 @@ import { useGetAllUserQuery } from '../../../../Redux/services/pagesApisServices
 import toast from 'react-hot-toast';
 import { Link } from 'react-router';
 import { FaPlus } from 'react-icons/fa';
+import useProjectsCreate from '../../../../contexts/hooks/useProjectsCreate';
+import { MdDelete } from 'react-icons/md';
 const { Search } = Input;
 
-function ProjectsWoners({
-  setProjectOwnerAssigned,
-  setProjectsOwnerModal,
-}) {
+function ProjectsWoners({ setProjectsOwnerModal }) {
+  const { projectOwnerAssigned, setProjectOwnerAssigned } = useProjectsCreate();
+
   const [searchTerm, setSearchTerm] = useState('');
   const { data, isLoading, refetch } = useGetAllUserQuery({
     searchTerm: searchTerm,
@@ -23,17 +24,30 @@ function ProjectsWoners({
   };
 
   if (isLoading) {
-    return <span class="loader"></span>;
+    return <span className="loader"></span>;
   }
 
   const hasManagers = data?.data?.result && data?.data?.result?.length > 0;
 
   const handleAssign = (user) => {
-    setProjectOwnerAssigned(user?._id);
-    localStorage.setItem('projectOwner', user?._id);
-    refetch();
+    // Check if user is already assigned
+    if (projectOwnerAssigned.includes(user?._id)) {
+      toast.error('This user is already assigned as a project owner!');
+      return;
+    }
+
+    setProjectOwnerAssigned([...projectOwnerAssigned, user?._id]);
     toast.success('Project owner assigned!');
-    setProjectsOwnerModal(false);
+  };
+
+  // Function to check if a user is already assigned
+  const isUserAssigned = (userId) => {
+    return projectOwnerAssigned?.includes(userId);
+  };
+
+  const handleDelete = async (id) => {
+    const updatedList = projectOwnerAssigned.filter((item) => item !== id);
+    setProjectOwnerAssigned(updatedList);
   };
 
   return (
@@ -77,12 +91,25 @@ function ProjectsWoners({
                 }
               />
 
-              <Button
-                onClick={() => handleAssign(user)}
-                className="!bg-[#213555] !text-white !px-6 !py-5"
-              >
-                Assign
-              </Button>
+              <div className='flex items-center gap-2'>
+                {isUserAssigned(user?._id) && (
+                  <Button
+                    shape="circle"
+                    onClick={() => handleDelete(user._id)}
+                    className="!bg-white !text-black w-fit px-2 py-1 rounded"
+                  >
+                    <MdDelete />
+                  </Button>
+                )}
+
+                <Button
+                  onClick={() => handleAssign(user)}
+                  className="!bg-[#213555] !text-white !px-6 !py-5"
+                  disabled={isUserAssigned(user?._id)}
+                >
+                  {isUserAssigned(user?._id) ? 'Assigned' : 'Assign'}
+                </Button>
+              </div>
             </div>
           </Card>
         ))

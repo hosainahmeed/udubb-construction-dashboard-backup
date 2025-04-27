@@ -25,7 +25,9 @@ const Login = () => {
         toast.success(res?.data?.message);
         route("/");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error?.data?.message);
+    }
   };
 
   return (
