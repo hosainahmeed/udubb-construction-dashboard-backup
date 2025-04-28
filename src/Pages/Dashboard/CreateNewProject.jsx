@@ -39,8 +39,7 @@ const { Title } = Typography;
 const CreateNewProject = () => {
   const location = useLocation();
   const id = location?.state;
-  const { data: project, isLoading: projectsLoading } =
-    useGetSingleProjectQuery({ id: id });
+  const { data: project } = useGetSingleProjectQuery({ id: id });
 
   const [form] = Form.useForm();
   const [projectImage, setProjectImage] = useState(null);
@@ -115,6 +114,7 @@ const CreateNewProject = () => {
         title: values.projectTitle,
         startDate: formattedDate,
         liveLink: values.liveStreamLink,
+        liveLink2: values.liveLink2,
         projectManager: projectManagerAssigned,
         officeManager: officeManagerAssigned,
         financeManager: financeManagerAssigned,
@@ -191,6 +191,7 @@ const CreateNewProject = () => {
       ? moment(initialProjectData.startDate)
       : null,
     liveStreamLink: initialProjectData.liveLink || '',
+    liveLink2: initialProjectData.liveLink2 || '',
     smartSheetId: initialProjectData.smartSheetId || undefined,
   };
 
@@ -345,7 +346,7 @@ const CreateNewProject = () => {
                   </Row>
 
                   <Row gutter={24}>
-                    <Col span={24}>
+                    <Col span={12}>
                       <Form.Item
                         name="smartSheetId"
                         label={
@@ -366,9 +367,6 @@ const CreateNewProject = () => {
                         />
                       </Form.Item>
                     </Col>
-                  </Row>
-
-                  <Row gutter={24}>
                     <Col span={12}>
                       <Form.Item
                         name="projectStartDate"
@@ -385,12 +383,31 @@ const CreateNewProject = () => {
                         />
                       </Form.Item>
                     </Col>
+                  </Row>
+
+                  <Row gutter={24}>
                     <Col span={12}>
                       <Form.Item
                         name="liveStreamLink"
                         label={
                           <Title level={5} className="text-gray-700 mb-1">
                             Live Stream Link
+                          </Title>
+                        }
+                      >
+                        <Input
+                          type="url"
+                          placeholder="link here..."
+                          className="rounded-md py-2"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="liveLink2"
+                        label={
+                          <Title level={5} className="text-gray-700 mb-1">
+                            Live Stream Link (2)
                           </Title>
                         }
                       >
