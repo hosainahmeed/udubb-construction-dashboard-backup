@@ -81,6 +81,7 @@ const EditProjects = () => {
         projectTitle: project.title || '',
         projectStartDate: project.startDate ? moment(project.startDate) : null,
         liveStreamLink: project.liveLink || '',
+        liveLink2: project.liveLink2 || '',
         smartSheetId: looseCompareSheet?.id || null,
       });
 
@@ -130,6 +131,7 @@ const EditProjects = () => {
           ? values.projectStartDate.format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
           : new Date().toISOString(),
         liveLink: values.liveStreamLink,
+        liveLink2: values.liveLink2,
         projectManager: projectManagerAssigned,
         officeManager: officeManagerAssigned,
         financeManager: financeManagerAssigned,
@@ -212,15 +214,16 @@ const EditProjects = () => {
                     {projectImageUrl ? (
                       <div className="!w-full relative !h-full">
                         <Image
+                          preview={false}
                           src={projectImageUrl}
-                          alt="Project Preview"
-                          className="!w-full !h-full !object-cover"
+                          alt="Project image"
+                          className="!w-full !h-full oop !object-cover"
                         />
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-[25%] !z-[999] right-2">
                           <Button
                             size="small"
                             shape="circle"
-                            className="!pointer-events-auto !bg-white !text-black"
+                            className="!pointer-events-auto !bg-white  !text-black"
                             onClick={() => {
                               setProjectImageUrl('');
                               setProjectImage(null);
@@ -333,7 +336,7 @@ const EditProjects = () => {
                   </Col>
                 </Row>
                 <Row gutter={24}>
-                  <Col span={24}>
+                  <Col span={12}>
                     <Form.Item
                       name="smartSheetId"
                       label={
@@ -355,8 +358,6 @@ const EditProjects = () => {
                       />
                     </Form.Item>
                   </Col>
-                </Row>
-                <Row gutter={24}>
                   <Col span={12}>
                     <Form.Item
                       name="projectStartDate"
@@ -373,12 +374,30 @@ const EditProjects = () => {
                       />
                     </Form.Item>
                   </Col>
+                </Row>
+                <Row gutter={24}>
                   <Col span={12}>
                     <Form.Item
                       name="liveStreamLink"
                       label={
                         <Title level={5} className="text-gray-700 mb-1">
                           Live Stream Link
+                        </Title>
+                      }
+                    >
+                      <Input
+                        type="url"
+                        placeholder="link here..."
+                        className="rounded-md py-2"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="liveLink2"
+                      label={
+                        <Title level={5} className="text-gray-700 mb-1">
+                          Live Stream Link(2)
                         </Title>
                       }
                     >
