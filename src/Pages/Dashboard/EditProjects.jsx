@@ -214,15 +214,16 @@ const EditProjects = () => {
                     {projectImageUrl ? (
                       <div className="!w-full relative !h-full">
                         <Image
+                          preview={false}
                           src={projectImageUrl}
-                          alt="Project Preview"
-                          className="!w-full !h-full !object-cover"
+                          alt="Project image"
+                          className="!w-full !h-full oop !object-cover"
                         />
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-[25%] !z-[999] right-2">
                           <Button
                             size="small"
                             shape="circle"
-                            className="!pointer-events-auto !bg-white !text-black"
+                            className="!pointer-events-auto !bg-white  !text-black"
                             onClick={() => {
                               setProjectImageUrl('');
                               setProjectImage(null);
