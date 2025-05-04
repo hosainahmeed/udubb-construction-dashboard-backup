@@ -1,5 +1,5 @@
 // export const url = `${import.meta.env.VITE_URL}`;
-export const url = `http://13.49.200.198:5050`;
+export const url = `http://52.45.173.22:5000`;
 export const imageUrl = (image) => {
   return image
     ? image?.startsWith(`http`)
