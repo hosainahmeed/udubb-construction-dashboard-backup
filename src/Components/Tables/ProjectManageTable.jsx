@@ -142,9 +142,6 @@ const ProjectManageTable = () => {
               <strong>Project Name:</strong> {selectedProject?.name}
             </p>
             <p>
-              <strong>Title:</strong> {selectedProject?.title}
-            </p>
-            <p>
               <strong>Project Owner Email:</strong>{' '}
               {selectedProject?.projectOwnerEmail}
             </p>
