@@ -1,13 +1,12 @@
 import React from 'react';
 import { FaUserTie } from 'react-icons/fa';
 import { FaUsersGear } from 'react-icons/fa6';
-import { GrMoney, GrProjects } from 'react-icons/gr';
-import { PiBuildingOfficeFill } from 'react-icons/pi';
+import { GrProjects } from 'react-icons/gr';
 
 export const SidebarLink = [
   {
     path: '/',
-    label: 'Customers Manage',
+    label: 'Customers',
     icon: <FaUsersGear size={24} />,
   },
   {
